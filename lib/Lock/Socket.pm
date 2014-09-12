@@ -113,6 +113,17 @@ This module is based on the
 L<solo.pl|https://github.com/andres-erbsen/solo> script by Andres
 Erbsen.
 
+=head1 TEST COVERAGE
+
+Decent test coverage is possible because this module is *very* simple.
+
+    ------------------ ------ ------ ------ ------ ------ ------
+    File                 stmt   bran   cond    sub   time  total
+    ------------------ ------ ------ ------ ------ ------ ------
+    Lock/Socket.pm      100.0   90.0    n/a  100.0  100.0   98.3
+    Total               100.0   90.0    n/a  100.0  100.0   98.3
+    ------------------ ------ ------ ------ ------ ------ ------
+
 =head1 AUTHOR
 
 Mark Lawrence E<lt>nomad@null.netE<gt>
