@@ -18,6 +18,7 @@ test_requires 'Test::Fatal' => 0;
 test_requires 'Test::More'  => 0;
 
 #devel_requires 'Module::Install' => 0;
+#devel_requires 'App::githook_perltidy' => 0;
 
 tests_recursive 't';
 
