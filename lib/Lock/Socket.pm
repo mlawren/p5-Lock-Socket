@@ -55,7 +55,6 @@ sub new {
 
 1;
 
-
 =head1 NAME
 
 Lock::Socket - application lock/mutex module based on sockets
