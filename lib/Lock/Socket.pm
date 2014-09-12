@@ -4,7 +4,7 @@ use warnings;
 use Carp ();
 use Socket;
 
-our @VERSION = '0.0.1_1';
+our @VERSION = '0.0.1_2';
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
@@ -61,7 +61,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.1_1 (yyyy-mm-dd) development release.
+0.0.1_2 (yyyy-mm-dd) development release.
 
 =head1 SYNOPSIS
 
