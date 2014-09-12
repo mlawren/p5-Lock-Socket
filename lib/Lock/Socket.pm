@@ -4,6 +4,8 @@ use warnings;
 use Carp ();
 use Socket;
 
+our @VERSION = '0.0.1_1';
+
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
 @Lock::Socket::Error::Usage::ISA  = ('Lock::Socket::Error');
