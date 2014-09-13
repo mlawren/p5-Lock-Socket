@@ -7,7 +7,8 @@
        - None.
 
     Enhancements:
-       - None.
+       - More informative exception messages
+       - Add a demonstration "example/solo" command
 
     Bug Fixes:
        - try_lock_socket now actually returns 'undef' (intead of '0')
