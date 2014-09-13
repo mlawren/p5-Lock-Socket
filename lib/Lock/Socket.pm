@@ -1,7 +1,7 @@
 package Lock::Socket::Mo;
 
-BEGIN {
 #<<< Do not perltidy this
+BEGIN {
 # use Mo qw'build builder default import required';
 #   The following line of code was produced from the previous line by
 #   Mo::Inline version 0.39
@@ -9,6 +9,8 @@ no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_
     $INC{'Lock/Socket/Mo.pm'} = __FILE__;
 }
 1;
+#>>>
+
 package Lock::Socket::Error;
 use Lock::Socket::Mo;
 use overload '""' => sub { $_[0]->msg }, fallback => 1;
@@ -76,8 +78,8 @@ has _is_locked => (
 );
 
 sub err {
-    my $self = shift;
-    my $class = 'Lock::Socket::Error::'.$_[0];
+    my $self  = shift;
+    my $class = 'Lock::Socket::Error::' . $_[0];
     return $class->new( msg => $_[1] );
 }
 
@@ -90,7 +92,7 @@ sub lock {
     return 1 if $self->_is_locked;
 
     bind( $self->_sock, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
-      || Carp::croak( $self->err ( 'Bind', "bind: $!" ) );
+      || Carp::croak( $self->err( 'Bind', "bind: $!" ) );
 
     $self->_is_locked(1);
 }
@@ -104,7 +106,7 @@ sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
     close( $self->_sock );
-    $self->_sock($self->_sock_builder);
+    $self->_sock( $self->_sock_builder );
     $self->_is_locked(0);
     return 1;
 }
