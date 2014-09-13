@@ -230,8 +230,9 @@ maximum user ID of 65536:
     3       Second byte of user ID
     4       1
 
-If you want a system-wide namespace you can manually specify the
-address as well as the required port number.
+The calculated address can be read back from C<< $sock->addr >>.  If
+you want a system-wide namespace you can manually specify the address
+as well as the required port number.
 
 As soon as the B<Lock::Socket> object goes out of scope the port is
 closed and the lock can be obtained by someone else.
