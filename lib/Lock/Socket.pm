@@ -146,7 +146,8 @@ Lock::Socket - application lock/mutex module based on sockets
     eval { $sock2->lock }; # exception
 
     # But trying to get a lock is ok
-    my $status = $sock2->try_lock;
+    my $status = $sock2->try_lock;       # 0
+    my $same_status = $sock2->is_locked; # 0
 
     # You can manually unlock
     $sock->unlock;
