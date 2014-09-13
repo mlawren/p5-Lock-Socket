@@ -166,6 +166,17 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 SYNOPSIS
 
+    ### Function API
+    use Lock::Socket qw/lock_socket try_lock_socket/;
+
+    # Raises exception if cannot lock
+    my $lock = lock_socket(15151);
+
+    # Or just return undef
+    my $lock2 = try_lock_socket(15151) or
+        die "handle your own error";
+
+
     ### Object API
     use Lock::Socket;
 
@@ -193,16 +204,6 @@ Lock::Socket - application lock/mutex module based on sockets
     $sock->unlock;
     # ... or unlocking is automatic on scope exit
     undef $sock;
-
-    ### Function API
-    use Lock::Socket qw/lock_socket try_lock_socket/;
-
-    # Fails if cannot lock
-    my $lock = lock_socket(15151);
-
-    # Or just return undef
-    my $lock2 = try_lock_socket(15151) or
-        die "handle your own error";
 
 =head1 DESCRIPTION
 
