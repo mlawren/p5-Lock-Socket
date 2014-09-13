@@ -1,7 +1,7 @@
 package Lock::Socket::Mo;
 
-BEGIN {
 #<<< Do not perltidy this
+BEGIN {
 # use Mo qw'build builder default import required';
 #   The following line of code was produced from the previous line by
 #   Mo::Inline version 0.39
@@ -9,6 +9,8 @@ no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_
     $INC{'Lock/Socket/Mo.pm'} = __FILE__;
 }
 1;
+#>>>
+
 package Lock::Socket::Error;
 use Lock::Socket::Mo;
 use overload '""' => sub { $_[0]->msg }, fallback => 1;
@@ -28,10 +30,48 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.1_2';
+our @VERSION = '0.0.1_3';
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
+
+sub import {
+    my $class  = shift;
+    my $caller = caller;
+    no strict 'refs';
+
+    foreach my $token (@_) {
+        if ( $token eq 'lock_socket' ) {
+            *{ $caller . '::lock_socket' } = sub {
+                my $port = shift || Carp::croak('usage: lock_socket($PORT)');
+                my $addr = shift;
+                my $sock = Lock::Socket->new(
+                    port => $port,
+                    defined $addr ? ( addr => $addr ) : (),
+                );
+                $sock->lock;
+                return $sock;
+            };
+        }
+        elsif ( $token eq 'try_lock_socket' ) {
+            *{ $caller . '::try_lock_socket' } = sub {
+                my $port = shift
+                  || Carp::croak('usage: try_lock_socket($PORT)');
+                my $addr = shift;
+                my $sock = Lock::Socket->new(
+                    port => $port,
+                    defined $addr ? ( addr => $addr ) : (),
+                );
+                $sock->try_lock;
+                return $sock if $sock->_is_locked;
+                return 0;
+              }
+        }
+        else {
+            Carp::croak 'not exported by Lock::Socket: ' . $token;
+        }
+    }
+}
 
 has port => (
     is       => 'ro',
@@ -56,17 +96,17 @@ has _inet_addr => (
     },
 );
 
-has _sock => (
+has fh => (
     is      => 'ro',
     lazy    => 0,
-    builder => '_sock_builder',
+    builder => '_fh_builder',
 );
 
-sub _sock_builder {
+sub _fh_builder {
     my $self = shift;
-    socket( my $sock, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
+    socket( my $fh, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
       || Carp::croak( $self->err( 'Socket', "socket: $!" ) );
-    return $sock;
+    return $fh;
 }
 
 has _is_locked => (
@@ -76,8 +116,8 @@ has _is_locked => (
 );
 
 sub err {
-    my $self = shift;
-    my $class = 'Lock::Socket::Error::'.$_[0];
+    my $self  = shift;
+    my $class = 'Lock::Socket::Error::' . $_[0];
     return $class->new( msg => $_[1] );
 }
 
@@ -89,8 +129,8 @@ sub lock {
     my $self = shift;
     return 1 if $self->_is_locked;
 
-    bind( $self->_sock, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
-      || Carp::croak( $self->err ( 'Bind', "bind: $!" ) );
+    bind( $self->fh, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
+      || Carp::croak( $self->err( 'Bind', "bind: $!" ) );
 
     $self->_is_locked(1);
 }
@@ -103,8 +143,8 @@ sub try_lock {
 sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
-    close( $self->_sock );
-    $self->_sock($self->_sock_builder);
+    close( $self->fh );
+    $self->fh( $self->_fh_builder );
     $self->_is_locked(0);
     return 1;
 }
@@ -115,18 +155,27 @@ sub DESTROY {
 
 1;
 
-
-
-
+__END__
 =head1 NAME
 
 Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.1_2 (2014-09-13) development release.
+0.0.1_3 (2014-09-13) development release.
 
 =head1 SYNOPSIS
+
+    ### Function API
+    use Lock::Socket qw/lock_socket try_lock_socket/;
+
+    # Raises exception if cannot lock
+    my $lock = lock_socket(15151);
+
+    # Or just return undef
+    my $lock2 = try_lock_socket(15151) or
+        die "handle your own error";
+
 
     ### Object API
     use Lock::Socket;
@@ -148,22 +197,16 @@ Lock::Socket - application lock/mutex module based on sockets
     eval { $sock2->lock }; # exception
 
     # But trying to get a lock is ok
-    my $status = $sock2->try_lock;
+    my $status = $sock2->try_lock;       # 0
+    my $same_status = $sock2->is_locked; # 0
+
+    # If you need the underlying filehandle
+    my $fh = $sock->fh;
 
     # You can manually unlock
     $sock->unlock;
     # ... or unlocking is automatic on scope exit
     undef $sock;
-
-    ### Function API
-    use Lock::Socket qw/lock_socket try_lock_socket/;
-
-    # Fails if cannot lock
-    my $lock = lock_socket(15151);
-
-    # Or just return undef
-    my $lock2 = try_lock_socket(15151) or
-        die "handle your own error";
 
 =head1 DESCRIPTION
 
