@@ -118,13 +118,14 @@ sub DESTROY {
 
 
 
+
 =head1 NAME
 
 Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.1_2 (2014-09-13) development release.
+0.0.1_2 (yyyy-mm-dd) development release.
 
 =head1 SYNOPSIS
 
