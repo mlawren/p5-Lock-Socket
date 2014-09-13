@@ -128,7 +128,8 @@ sub lock {
     return 1 if $self->_is_locked;
 
     bind( $self->fh, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
-      || $self->err( 'Bind', "bind: $!" );
+      || $self->err( 'Bind',
+        sprintf( 'bind: %s (%s:%d)', $!, $self->addr, $self->port ) );
 
     $self->_is_locked(1);
 }
