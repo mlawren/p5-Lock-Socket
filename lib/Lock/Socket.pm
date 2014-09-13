@@ -20,7 +20,7 @@ sub new {
     Carp::croak( err ( 'Usage', 'usage: Lock::Socket->new($PORT)' ) )
       unless $port;
 
-    $addr = join( '.', 127, $< % 255, $> % 255, 1 )
+    $addr = join( '.', 127, unpack( 'C2', pack( "n", $< ) ) , 1 )
       unless $addr;
 
     socket( my $lock, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
@@ -82,25 +82,24 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 DESCRIPTION
 
-B<Lock::Socket> provides inter-process locking for applications that
-need to ensure only a single process is running or accessing a resource
-at any one time.  There are many other locking modules available on
-CPAN, but most of them use some kind of file-based locking with various
-issues. This module instead works by binding to a socket on a loopback
-(127/8) address.
+B<Lock::Socket> provides cooperative inter-process locking for
+applications that need to ensure that only one process is running at a
+time.  This module works by binding to a socket on a loopback (127/8)
+address/port combination, which the operating system conveniently
+restricts to a single process.
 
     Lock::Socket->new($PORT, [$ADDRESS]) -> Lock::Socket
 
-For the constructor the C<$PORT> is required, and on most systems
-needs to be greater than 1024 unless you are running as root. If
-C<$ADDRESS> is not given then it is calculated as follows, which
-provides automatic per-user namespacing:
+For the constructor the C<$PORT> is required, and on most systems needs
+to be greater than 1024 unless you are running as root. If C<$ADDRESS>
+is not given then it is calculated as follows, which provides automatic
+per-user namespacing up to a maximum user ID of 65536:
 
     Octet   Value
     ------  ------------------------------
     1       127
-    2       Real user ID, modulo 255
-    3       Effective user ID, modulo 255
+    2       First byte of user ID
+    3       Second byte of user ID
     4       1
 
 If you want a system-wide namespace you can manually specify the
@@ -109,9 +108,10 @@ address as well as the required port number.
 As soon as the B<Lock::Socket> object goes out of scope the port is
 closed and the lock can be obtained by someone else.
 
-This module is based on the
-L<solo.pl|https://github.com/andres-erbsen/solo> script by Andres
-Erbsen.
+=head1 SEE ALSO
+
+There are many other locking modules available on CPAN, but most of
+them use some kind of file or flock-based locking with various issues.
 
 =head1 TEST COVERAGE
 
@@ -126,7 +126,9 @@ Decent test coverage is possible because this module is *very* simple.
 
 =head1 AUTHOR
 
-Mark Lawrence E<lt>nomad@null.netE<gt>
+Mark Lawrence E<lt>nomad@null.netE<gt>. This module was inspired by the
+L<solo.pl|https://github.com/andres-erbsen/solo> script by Andres
+Erbsen.
 
 =head1 COPYRIGHT AND LICENSE
 
