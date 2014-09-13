@@ -9,6 +9,7 @@
     Enhancements:
        - More informative exception messages
        - Add a demonstration "example/solo" command
+       - Minor code & testing improvements
 
     Bug Fixes:
        - try_lock_socket now actually returns 'undef' (intead of '0')
