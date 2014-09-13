@@ -102,7 +102,7 @@ has fh => (
 sub _fh_builder {
     my $self = shift;
     socket( my $fh, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
-      || Carp::croak( $self->err( 'Socket', "socket: $!" ) );
+      || $self->err( 'Socket', "socket: $!" );
     return $fh;
 }
 
@@ -115,7 +115,8 @@ has _is_locked => (
 sub err {
     my $self  = shift;
     my $class = 'Lock::Socket::Error::' . $_[0];
-    return $class->new( msg => $_[1] );
+    die $class->new(
+        msg => sprintf( "%s at %s line %d\n", $_[1], ( caller(2) )[ 1, 2 ] ) );
 }
 
 sub is_locked {
@@ -127,7 +128,7 @@ sub lock {
     return 1 if $self->_is_locked;
 
     bind( $self->fh, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
-      || Carp::croak( $self->err( 'Bind', "bind: $!" ) );
+      || $self->err( 'Bind', "bind: $!" );
 
     $self->_is_locked(1);
 }
@@ -248,7 +249,7 @@ distribution for a demonstration:
     usage: solo PORT COMMAND...
 
     # terminal 1
-    example solo 1414 sleep 10  # OK
+    example solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
 
     # terminal 2
     example/solo 1414 sleep 10  # bind error
