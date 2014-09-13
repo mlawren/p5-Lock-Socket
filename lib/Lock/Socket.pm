@@ -216,15 +216,19 @@ time.  This module works by binding to a socket on a loopback (127/8)
 address/port combination, which the operating system conveniently
 restricts to a single process.
 
+Both C<lock_socket> and C<try_lock_socket> take a mandatory port number
+and an optional IP address as arguments, and return a B<Lock::Socket>
+object.  Objects are instantiated manually as follows:
+
     Lock::Socket->new(
         port => $PORT, # required
         addr => $ADDR, # defaults to 127.X.Y.1
     );
 
-For the constructor C<port> is required, and on most systems needs to
-be greater than 1024 unless you are running as root. If C<addr> is not
-given then it is calculated as follows, which provides automatic
-per-user namespacing up to a maximum user ID of 65536:
+On most systems the port number needs to be greater than 1024 unless
+you are running as root. If C<addr> is not given then it is calculated
+as follows, which provides automatic per-user namespacing up to a
+maximum user ID of 65536:
 
     Octet   Value
     ------  ------------------------------
