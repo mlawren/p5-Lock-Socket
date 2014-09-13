@@ -1,4 +1,4 @@
-0.0.3_1 (2014-05-01)
+0.0.3_1 (yyyy-mm-dd)
 
     API Changes:
        - None.
@@ -15,6 +15,6 @@
          API change the end result should not be different, and no-one
          is using this yet anyway.
 
-0.0.2 (yyyy-mm-dd)
+0.0.2 (2014-09-13)
 
     Initial Release.
