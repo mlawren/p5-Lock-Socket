@@ -5,40 +5,61 @@ use Test::More;
 use Test::Fatal;
 
 # First of all test the Error class
-my $error = Lock::Socket::Error->new( 'Usage', 'usage error' );
-isa_ok $error , 'Lock::Socket::Error::Usage';
-is $error, 'usage error';
+my $error = Lock::Socket::Error->new( msg => 'usage error' );
+isa_ok $error , 'Lock::Socket::Error';
+is "$error", 'usage error', 'error stringification';
 
-isa_ok exception { Lock::Socket::Error->new( 'junk', 'some message' ) },
-  'Lock::Socket::Error::Unknown';
-
-isa_ok exception { Lock::Socket->new }, 'Lock::Socket::Error::Usage';
+like exception { Lock::Socket->new }, qr/required/, 'required attributes';
 
 my $PORT1 = 14414;
 my $PORT2 = 24414;
 
 # Now take a lock
-my $lock = Lock::Socket->new($PORT1);
-isa_ok $lock, 'Lock::Socket';
+my $sock = Lock::Socket->new( port => $PORT1 );
+isa_ok $sock, 'Lock::Socket';
+
+is $sock->is_locked, 0, 'new not locked';
+is $sock->lock,      1, 'lock';
+is $sock->is_locked, 1, 'is_locked';
+is $sock->lock,      1, 'lock ok when locked';
+is $sock->unlock,    1, 'unlock ok';
+is $sock->unlock,    1, 'unlock still ok';
+is $sock->lock,      1, 're-lock ok';
 
 # Cannot take the same lock
-isa_ok exception { Lock::Socket->new($PORT1) }, 'Lock::Socket::Error::Bind';
+my $e = exception {
+    Lock::Socket->new( port => $PORT1 )->lock;
+};
+isa_ok $e, 'Lock::Socket::Error::Bind', $e;
+
+# Can try to take the lock
+is( Lock::Socket->new( port => $PORT1 )->try_lock, 0, 'try fail' );
 
 # But can take a different lock port
-my $lock2 = Lock::Socket->new($PORT2);
-isa_ok $lock2, 'Lock::Socket';
+my $sock2 = Lock::Socket->new( port => $PORT2 );
+is $sock2->lock, 1, 'lock 2';
+
+# And can get it by trying
+$sock2 = undef;
+$sock2 = Lock::Socket->new( port => $PORT2 );
+is $sock2->try_lock, 1, 'try_lock 2';
 
 # We can also take the same port at a different address
-my $lock3 = Lock::Socket->new( $PORT2, '127.0.0.2' );
-isa_ok $lock3, 'Lock::Socket';
+my $sock3 = Lock::Socket->new( port => $PORT2, addr => '127.0.0.2' );
+is $sock3->lock, 1, 'lock 3';
 
 # But we can't take that lock again either
-isa_ok exception { Lock::Socket->new( $PORT2, '127.0.0.2' ) },
-  'Lock::Socket::Error::Bind';
+$e = exception {
+    Lock::Socket->new(
+        port => $PORT2,
+        addr => '127.0.0.2'
+    )->lock;
+};
+isa_ok $e, 'Lock::Socket::Error::Bind', $e;
 
 # Confirm that a lock disappears with the object
-undef $lock;
-my $lock4 = Lock::Socket->new($PORT1);
-isa_ok $lock4, 'Lock::Socket';
+undef $sock;
+my $sock4 = Lock::Socket->new( port => $PORT1 );
+is $sock4->lock, 1, 'lock 4';
 
 done_testing();

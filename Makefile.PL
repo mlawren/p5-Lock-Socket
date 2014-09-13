@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 name 'Lock-Socket';
 author 'Mark Lawrence <nomad@null.net>';
-version '0.0.1_1';
+version '0.0.1_2';
 license 'gpl3';
 
 homepage 'https://github.com/mlawren/p5-Lock-Socket';
@@ -18,9 +18,13 @@ test_requires 'Test::Fatal' => 0;
 test_requires 'Test::More'  => 0;
 
 #devel_requires 'Module::Install' => 0;
+#devel_requires 'App::githook_perltidy' => 0;
+#devel_requires 'Mo' => 0;
+#devel_requires 'IO::All' => 0; # for mo-inline
 
 tests_recursive 't';
 
 no_index package => 'Lock::Socket::Error';
+no_index package => 'Lock::Socket::Mo';
 
 WriteAll;
