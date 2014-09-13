@@ -97,8 +97,8 @@ has _inet_addr => (
     },
 );
 
-has fh => (
-    is      => 'ro',
+has _fh => (
+    is      => 'rw',
     lazy    => 0,
     builder => '_fh_builder',
 );
@@ -108,6 +108,10 @@ sub _fh_builder {
     socket( my $fh, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
       || $self->err( 'Socket', "socket: $!" );
     return $fh;
+}
+
+sub fh {
+    $_[0]->_fh;
 }
 
 has _is_locked => (
@@ -146,8 +150,8 @@ sub try_lock {
 sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
-    close( $self->fh );
-    $self->fh( $self->_fh_builder );
+    close( $self->_fh );
+    $self->_fh( $self->_fh_builder );
     $self->_is_locked(0);
     return 1;
 }
