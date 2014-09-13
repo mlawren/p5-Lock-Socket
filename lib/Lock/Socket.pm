@@ -117,6 +117,7 @@ sub DESTROY {
 
 
 
+
 =head1 NAME
 
 Lock::Socket - application lock/mutex module based on sockets
@@ -171,6 +172,11 @@ applications that need to ensure that only one process is running at a
 time.  This module works by binding to a socket on a loopback (127/8)
 address/port combination, which the operating system conveniently
 restricts to a single process.
+
+    Lock::Socket->new(
+        port => $PORT, # required
+        addr => $ADDR, # defaults to 127.X.Y.1
+    );
 
 For the constructor C<port> is required, and on most systems needs to
 be greater than 1024 unless you are running as root. If C<addr> is not
