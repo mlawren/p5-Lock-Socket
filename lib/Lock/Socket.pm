@@ -30,7 +30,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.2';
+our @VERSION = '0.0.3_1';
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
@@ -64,7 +64,7 @@ sub import {
                 );
                 $sock->try_lock;
                 return $sock if $sock->_is_locked;
-                return 0;
+                return undef;
               }
         }
         else {
@@ -102,7 +102,7 @@ has fh => (
 sub _fh_builder {
     my $self = shift;
     socket( my $fh, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
-      || Carp::croak( $self->err( 'Socket', "socket: $!" ) );
+      || $self->err( 'Socket', "socket: $!" );
     return $fh;
 }
 
@@ -115,7 +115,8 @@ has _is_locked => (
 sub err {
     my $self  = shift;
     my $class = 'Lock::Socket::Error::' . $_[0];
-    return $class->new( msg => $_[1] );
+    die $class->new(
+        msg => sprintf( "%s at %s line %d\n", $_[1], ( caller(2) )[ 1, 2 ] ) );
 }
 
 sub is_locked {
@@ -127,7 +128,8 @@ sub lock {
     return 1 if $self->_is_locked;
 
     bind( $self->fh, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
-      || Carp::croak( $self->err( 'Bind', "bind: $!" ) );
+      || $self->err( 'Bind',
+        sprintf( 'bind: %s (%s:%d)', $!, $self->addr, $self->port ) );
 
     $self->_is_locked(1);
 }
@@ -155,7 +157,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.2 (2014-09-13) development release.
+0.0.3_1 (2014-09-13) development release.
 
 =head1 SYNOPSIS
 
@@ -205,13 +207,15 @@ Lock::Socket - application lock/mutex module based on sockets
 
 B<Lock::Socket> provides cooperative inter-process locking for
 applications that need to ensure that only one process is running at a
-time.  This module works by binding to a socket on a loopback (127/8)
-address/port combination, which the operating system conveniently
-restricts to a single process.
+time.  This module works by binding to a port on a loopback (127/8)
+address, which the operating system conveniently restricts to a single
+process.
 
 Both C<lock_socket> and C<try_lock_socket> take a mandatory port number
 and an optional IP address as arguments, and return a B<Lock::Socket>
-object.  Objects are instantiated manually as follows:
+object on success. C<lock_socket> will raise an exception if the lock
+cannot be taken and C<try_lock_socket> will return undef. Objects are
+instantiated manually as follows:
 
     Lock::Socket->new(
         port => $PORT, # required
@@ -239,10 +243,17 @@ closed and the lock can be obtained by someone else.
 
 If you want to keep holding onto a lock socket after a call to C<exec>
 (perhaps after forking) read about the C<$^F> variable in L<perlvar>,
-as you will probably have to set it to ensure the socket is not closed:
+as you have to set it B<before> creating a lock socket to ensure the it
+will not be closed on exec.  See the F<example/solo> file in the
+distribution for a demonstration:
 
-    use List::Util qw/max/;
-    $^F = max($^F, $sock->fh->fileno);
+    usage: solo PORT COMMAND...
+
+    # terminal 1
+    example solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
+
+    # terminal 2
+    example/solo 1414 sleep 10  # bind error
 
 =head1 SEE ALSO
 

@@ -22,7 +22,7 @@ my $e = exception {
 isa_ok $e, 'Lock::Socket::Error::Bind', $e;
 
 # Can try to take the lock
-is( try_lock_socket($PORT1), 0, 'try fail' );
+is( try_lock_socket($PORT1), undef, 'try fail' );
 
 # But can take a different lock port
 my $sock2 = lock_socket($PORT2);
