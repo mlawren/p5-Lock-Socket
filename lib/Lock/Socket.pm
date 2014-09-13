@@ -96,17 +96,17 @@ has _inet_addr => (
     },
 );
 
-has _sock => (
+has fh => (
     is      => 'ro',
     lazy    => 0,
-    builder => '_sock_builder',
+    builder => '_fh_builder',
 );
 
-sub _sock_builder {
+sub _fh_builder {
     my $self = shift;
-    socket( my $sock, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
+    socket( my $fh, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
       || Carp::croak( $self->err( 'Socket', "socket: $!" ) );
-    return $sock;
+    return $fh;
 }
 
 has _is_locked => (
@@ -129,7 +129,7 @@ sub lock {
     my $self = shift;
     return 1 if $self->_is_locked;
 
-    bind( $self->_sock, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
+    bind( $self->fh, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
       || Carp::croak( $self->err( 'Bind', "bind: $!" ) );
 
     $self->_is_locked(1);
@@ -143,8 +143,8 @@ sub try_lock {
 sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
-    close( $self->_sock );
-    $self->_sock( $self->_sock_builder );
+    close( $self->fh );
+    $self->fh( $self->_fh_builder );
     $self->_is_locked(0);
     return 1;
 }
@@ -199,6 +199,9 @@ Lock::Socket - application lock/mutex module based on sockets
     # But trying to get a lock is ok
     my $status = $sock2->try_lock;       # 0
     my $same_status = $sock2->is_locked; # 0
+
+    # If you need the underlying filehandle
+    my $fh = $sock->fh;
 
     # You can manually unlock
     $sock->unlock;
