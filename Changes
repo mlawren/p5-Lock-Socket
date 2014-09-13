@@ -3,14 +3,17 @@
     API Changes:
        - None.
 
-   New Features:
-      - None.
+    New Features:
+       - None.
 
-   Enhancements:
-      - None.
+    Enhancements:
+       - None.
 
-   Bug Fixes:
-      - None.
+    Bug Fixes:
+       - try_lock_socket now actually returns 'undef' (intead of '0')
+         as it said in the documentation. Although this is actually an
+         API change the end result should not be different, and no-one
+         is using this yet anyway.
 
 0.0.2 (yyyy-mm-dd)
 

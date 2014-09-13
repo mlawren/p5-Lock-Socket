@@ -64,7 +64,7 @@ sub import {
                 );
                 $sock->try_lock;
                 return $sock if $sock->_is_locked;
-                return 0;
+                return undef;
               }
         }
         else {
@@ -205,13 +205,15 @@ Lock::Socket - application lock/mutex module based on sockets
 
 B<Lock::Socket> provides cooperative inter-process locking for
 applications that need to ensure that only one process is running at a
-time.  This module works by binding to a socket on a loopback (127/8)
-address/port combination, which the operating system conveniently
-restricts to a single process.
+time.  This module works by binding to a port on a loopback (127/8)
+address, which the operating system conveniently restricts to a single
+process.
 
 Both C<lock_socket> and C<try_lock_socket> take a mandatory port number
 and an optional IP address as arguments, and return a B<Lock::Socket>
-object.  Objects are instantiated manually as follows:
+object on success. C<lock_socket> will raise an exception if the lock
+cannot be taken and C<try_lock_socket> will return undef. Objects are
+instantiated manually as follows:
 
     Lock::Socket->new(
         port => $PORT, # required
