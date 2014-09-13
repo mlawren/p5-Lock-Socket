@@ -35,6 +35,44 @@ our @VERSION = '0.0.1_3';
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
 
+sub import {
+    my $class  = shift;
+    my $caller = caller;
+    no strict 'refs';
+
+    foreach my $token (@_) {
+        if ( $token eq 'lock_socket' ) {
+            *{ $caller . '::lock_socket' } = sub {
+                my $port = shift || Carp::croak('usage: lock_socket($PORT)');
+                my $addr = shift;
+                my $sock = Lock::Socket->new(
+                    port => $port,
+                    defined $addr ? ( addr => $addr ) : (),
+                );
+                $sock->lock;
+                return $sock;
+            };
+        }
+        elsif ( $token eq 'try_lock_socket' ) {
+            *{ $caller . '::try_lock_socket' } = sub {
+                my $port = shift
+                  || Carp::croak('usage: try_lock_socket($PORT)');
+                my $addr = shift;
+                my $sock = Lock::Socket->new(
+                    port => $port,
+                    defined $addr ? ( addr => $addr ) : (),
+                );
+                $sock->try_lock;
+                return $sock if $sock->_is_locked;
+                return 0;
+              }
+        }
+        else {
+            Carp::croak 'not exported by Lock::Socket: ' . $token;
+        }
+    }
+}
+
 has port => (
     is       => 'ro',
     required => 1,
