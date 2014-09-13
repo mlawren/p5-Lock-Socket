@@ -97,7 +97,7 @@ sub lock {
 
 sub try_lock {
     my $self = shift;
-    return eval { $self->lock };
+    return eval { $self->lock } || 0;
 }
 
 sub unlock {
@@ -114,6 +114,7 @@ sub DESTROY {
 }
 
 1;
+
 
 
 =head1 NAME
