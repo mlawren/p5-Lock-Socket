@@ -19,9 +19,12 @@ test_requires 'Test::More'  => 0;
 
 #devel_requires 'Module::Install' => 0;
 #devel_requires 'App::githook_perltidy' => 0;
+#devel_requires 'Mo' => 0;
+#devel_requires 'IO::All' => 0; # for mo-inline
 
 tests_recursive 't';
 
 no_index package => 'Lock::Socket::Error';
+no_index package => 'Lock::Socket::Mo';
 
 WriteAll;

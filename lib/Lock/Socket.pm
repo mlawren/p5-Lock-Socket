@@ -1,59 +1,120 @@
+package Lock::Socket::Mo;
+
+BEGIN {
+#<<< Do not perltidy this
+# use Mo qw'build builder default import required';
+#   The following line of code was produced from the previous line by
+#   Mo::Inline version 0.39
+no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_},$c;my%n=%{$c.::.':E'};map{$s->{$_}=$n{$_}->()if!exists$s->{$_}}keys%n;$s};*{$M.import}=sub{import warnings;$^H|=1538;my($P,%e,%o)=caller.'::';shift;eval"no Mo::$_",&{$M.$_.::e}($P,\%e,\%o,\@_)for@_;return if$e{M};%e=(extends,sub{eval"no $_[0]()";@{$P.ISA}=$_[0]},has,sub{my$n=shift;my$m=sub{$#_?$_[0]{$n}=$_[1]:$_[0]{$n}};@_=(default,@_)if!($#_%2);$m=$o{$_}->($m,$n,@_)for sort keys%o;*{$P.$n}=$m},%e,);*{$P.$_}=$e{$_}for keys%e;@{$P.ISA}=$M.Object};*{$M.'build::e'}=sub{my($P,$e)=@_;$e->{new}=sub{$c=shift;my$s=&{$M.Object::new}($c,@_);my@B;do{@B=($c.::BUILD,@B)}while($c)=@{$c.::ISA};exists&$_&&&$_($s)for@B;$s}};*{$M.'builder::e'}=sub{my($P,$e,$o)=@_;$o->{builder}=sub{my($m,$n,%a)=@_;my$b=$a{builder}or return$m;my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=\&{$P.$b}and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$_[0]->$b:$m->(@_)}}};*{$M.'default::e'}=sub{my($P,$e,$o)=@_;$o->{default}=sub{my($m,$n,%a)=@_;exists$a{default}or return$m;my($d,$r)=$a{default};my$g='HASH'eq($r=ref$d)?sub{+{%$d}}:'ARRAY'eq$r?sub{[@$d]}:'CODE'eq$r?$d:sub{$d};my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=$g and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$g->(@_):$m->(@_)}}};my$i=\&import;*{$M.import}=sub{(@_==2 and not$_[1])?pop@_:@_==1?push@_,grep!/import/,@f:();goto&$i};*{$M.'required::e'}=sub{my($P,$e,$o)=@_;$o->{required}=sub{my($m,$n,%a)=@_;if($a{required}){my$C=*{$P."new"}{CODE}||*{$M.Object::new}{CODE};no warnings 'redefine';*{$P."new"}=sub{my$s=$C->(@_);my%a=@_[1..$#_];if(!exists$a{$n}){require Carp;Carp::croak($n." required")}$s}}$m}};@f=qw[build builder default import required];use strict;use warnings;
+    $INC{'Lock/Socket/Mo.pm'} = __FILE__;
+}
+1;
+package Lock::Socket::Error;
+use Lock::Socket::Mo;
+use overload '""' => sub { $_[0]->msg }, fallback => 1;
+use Carp ();
+
+has msg => (
+    is       => 'ro',
+    required => 1,
+);
+
+1;
+
 package Lock::Socket;
 use strict;
 use warnings;
 use Carp ();
+use Lock::Socket::Mo;
 use Socket;
 
 our @VERSION = '0.0.1_2';
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
-@Lock::Socket::Error::Usage::ISA  = ('Lock::Socket::Error');
+
+has port => (
+    is       => 'ro',
+    required => 1,
+);
+
+has addr => (
+    is      => 'ro',
+    default => sub {
+        join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 );
+    },
+);
+
+# Unset close-on-exec?
+# $^F = 10;
+
+has _inet_addr => (
+    is      => 'ro',
+    default => sub {
+        my $self = shift;
+        return inet_aton( $self->addr );
+    },
+);
+
+has _sock => (
+    is      => 'ro',
+    lazy    => 0,
+    builder => '_sock_builder',
+);
+
+sub _sock_builder {
+    my $self = shift;
+    socket( my $sock, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
+      || Carp::croak( $self->err( 'Socket', "socket: $!" ) );
+    return $sock;
+}
+
+has _is_locked => (
+    is      => 'rw',
+    lazy    => 0,
+    default => sub { 0 },
+);
 
 sub err {
-    return Lock::Socket::Error->new(@_);
+    my $self = shift;
+    my $class = 'Lock::Socket::Error::'.$_[0];
+    return $class->new( msg => $_[1] );
 }
 
-sub new {
-    my ( $class, $port, $addr ) = @_;
-
-    Carp::croak( err ( 'Usage', 'usage: Lock::Socket->new($PORT)' ) )
-      unless $port;
-
-    $addr = join( '.', 127, unpack( 'C2', pack( "n", $< ) ) , 1 )
-      unless $addr;
-
-    socket( my $lock, PF_INET, SOCK_STREAM, getprotobyname('tcp') )
-      || Carp::croak( err ( 'Socket', "socket: $!" ) );
-
-    bind( $lock, pack_sockaddr_in( $port, inet_aton($addr) ) )
-      || Carp::croak( err ( 'Bind', "bind: $!" ) );
-
-    # Unset close-on-exec?
-    # $^F = 10;
-
-    return bless $lock, $class;
+sub is_locked {
+    $_[0]->_is_locked;
 }
 
-1;
+sub lock {
+    my $self = shift;
+    return 1 if $self->_is_locked;
 
-package Lock::Socket::Error;
-use strict;
-use warnings;
-use overload '""' => sub { ${ $_[0] } }, fallback => 1;
-use Carp ();
+    bind( $self->_sock, pack_sockaddr_in( $self->port, $self->_inet_addr ) )
+      || Carp::croak( $self->err ( 'Bind', "bind: $!" ) );
 
-@Lock::Socket::Error::Unknown::ISA = ('Lock::Socket::Error');
+    $self->_is_locked(1);
+}
 
-sub new {
-    my ( $base, $error, $msg ) = @_;
-    my $class = $base . '::' . $error;
+sub try_lock {
+    my $self = shift;
+    return eval { $self->lock };
+}
 
-    return bless \$msg, $class if $class->isa(__PACKAGE__);
-    Carp::croak( __PACKAGE__->new( 'Unknown', 'unknown error' ) );
+sub unlock {
+    my $self = shift;
+    return 1 unless $self->_is_locked;
+    close( $self->_sock );
+    $self->_sock($self->_sock_builder);
+    $self->_is_locked(0);
+    return 1;
+}
+
+sub DESTROY {
+    $_[0]->unlock;
 }
 
 1;
+
 
 =head1 NAME
 
@@ -65,20 +126,42 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 SYNOPSIS
 
-    use strict;
-    use warnings;
+    ### Object API
     use Lock::Socket;
 
-    my $lock = Lock::Socket->new(15151);
+    # Create a socket
+    my $sock = Lock::Socket->new(port => 15151);
 
-    # Fails with an exception
-    my $lock2 = Lock::Socket->new(15151);
+    # Lock or raise an exception
+    $sock->lock;
 
-    # When $lock goes out of scope so does the lock
-    undef $lock
+    # Can check its status in case you forgot
+    my $status = $sock->is_locked; # 1 (or 0)
 
-    # Now this will succeed
-    $lock2 = Lock::Socket->new(15151);
+    # Re-locking changes nothing
+    $sock->lock;
+
+    # New lock on same port fails
+    my $sock2 = Lock::Socket->new(port => 15151);
+    eval { $sock2->lock }; # exception
+
+    # But trying to get a lock is ok
+    my $status = $sock2->try_lock;
+
+    # You can manually unlock
+    $sock->unlock;
+    # ... or unlocking is automatic on scope exit
+    undef $sock;
+
+    ### Function API
+    use Lock::Socket qw/lock_socket try_lock_socket/;
+
+    # Fails if cannot lock
+    my $lock = lock_socket(15151);
+
+    # Or just return undef
+    my $lock2 = try_lock_socket(15151) or
+        die "handle your own error";
 
 =head1 DESCRIPTION
 
@@ -88,11 +171,9 @@ time.  This module works by binding to a socket on a loopback (127/8)
 address/port combination, which the operating system conveniently
 restricts to a single process.
 
-    Lock::Socket->new($PORT, [$ADDRESS]) -> Lock::Socket
-
-For the constructor the C<$PORT> is required, and on most systems needs
-to be greater than 1024 unless you are running as root. If C<$ADDRESS>
-is not given then it is calculated as follows, which provides automatic
+For the constructor C<port> is required, and on most systems needs to
+be greater than 1024 unless you are running as root. If C<addr> is not
+given then it is calculated as follows, which provides automatic
 per-user namespacing up to a maximum user ID of 65536:
 
     Octet   Value
