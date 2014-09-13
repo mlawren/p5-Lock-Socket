@@ -249,6 +249,11 @@ as you will probably have to set it to ensure the socket is not closed:
 There are many other locking modules available on CPAN, but most of
 them use some kind of file or flock-based locking.
 
+=head1 BUGS
+
+At the moment all of the tests fail on FreeBSD systems. Anyone with a
+clue or a box to test with please get in touch.
+
 =head1 AUTHOR
 
 Mark Lawrence E<lt>nomad@null.netE<gt>. This module was inspired by the
