@@ -33,6 +33,8 @@ our @VERSION = '0.0.3_2';
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
+@Lock::Socket::Error::Usage::ISA  = ('Lock::Socket::Error');
+@Lock::Socket::Error::Import::ISA = ('Lock::Socket::Error');
 
 sub import {
     my $class  = shift;
@@ -42,7 +44,8 @@ sub import {
     foreach my $token (@_) {
         if ( $token eq 'lock_socket' ) {
             *{ $caller . '::lock_socket' } = sub {
-                my $port = shift || Carp::croak('usage: lock_socket($PORT)');
+                my $port = shift
+                  || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
                 my $addr = shift;
                 my $sock = Lock::Socket->new(
                     port => $port,
@@ -55,7 +58,8 @@ sub import {
         elsif ( $token eq 'try_lock_socket' ) {
             *{ $caller . '::try_lock_socket' } = sub {
                 my $port = shift
-                  || Carp::croak('usage: try_lock_socket($PORT)');
+                  || __PACKAGE__->err( 'Usage',
+                    'usage: try_lock_socket($PORT)' );
                 my $addr = shift;
                 my $sock = Lock::Socket->new(
                     port => $port,
@@ -67,7 +71,8 @@ sub import {
               }
         }
         else {
-            Carp::croak 'not exported by Lock::Socket: ' . $token;
+            __PACKAGE__->err( 'Import',
+                'not exported by Lock::Socket: ' . $token );
         }
     }
 }

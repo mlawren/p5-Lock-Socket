@@ -4,6 +4,21 @@ use Lock::Socket qw/lock_socket try_lock_socket/;
 use Test::More;
 use Test::Fatal;
 
+my $e = exception {
+    lock_socket();
+};
+isa_ok $e, 'Lock::Socket::Error::Usage';
+
+$e = exception {
+    try_lock_socket();
+};
+isa_ok $e, 'Lock::Socket::Error::Usage';
+
+$e = exception {
+    Lock::Socket->import('unknown');
+};
+isa_ok $e, 'Lock::Socket::Error::Import';
+
 my $PORT1 = 14414;
 my $PORT2 = 24414;
 
@@ -16,10 +31,10 @@ is $sock->unlock,    1, 'unlock still ok';
 is $sock->lock,      1, 're-lock ok';
 
 # Cannot take the same lock
-my $e = exception {
+$e = exception {
     lock_socket($PORT1);
 };
-isa_ok $e, 'Lock::Socket::Error::Bind', $e;
+isa_ok $e, 'Lock::Socket::Error::Bind';
 
 # Can try to take the lock
 is( try_lock_socket($PORT1), undef, 'try fail' );
@@ -43,7 +58,7 @@ is $sock3->is_locked, 1, 'lock 3';
 $e = exception {
     lock_socket( $PORT2, '127.0.0.2' )->lock;
 };
-isa_ok $e, 'Lock::Socket::Error::Bind', $e;
+isa_ok $e, 'Lock::Socket::Error::Bind';
 
 # Confirm that a lock disappears with the object
 undef $sock;
