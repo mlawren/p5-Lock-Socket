@@ -113,17 +113,6 @@ closed and the lock can be obtained by someone else.
 There are many other locking modules available on CPAN, but most of
 them use some kind of file or flock-based locking with various issues.
 
-=head1 TEST COVERAGE
-
-Decent test coverage is possible because this module is *very* simple.
-
-    ------------------ ------ ------ ------ ------ ------ ------
-    File                 stmt   bran   cond    sub   time  total
-    ------------------ ------ ------ ------ ------ ------ ------
-    Lock/Socket.pm      100.0   90.0    n/a  100.0  100.0   98.3
-    Total               100.0   90.0    n/a  100.0  100.0   98.3
-    ------------------ ------ ------ ------ ------ ------ ------
-
 =head1 AUTHOR
 
 Mark Lawrence E<lt>nomad@null.netE<gt>. This module was inspired by the
