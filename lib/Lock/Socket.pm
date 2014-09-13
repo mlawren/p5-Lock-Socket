@@ -115,11 +115,7 @@ sub DESTROY {
 
 1;
 
-
-
-
-
-
+__END__
 =head1 NAME
 
 Lock::Socket - application lock/mutex module based on sockets
