@@ -85,9 +85,6 @@ has addr => (
     },
 );
 
-# Unset close-on-exec?
-# $^F = 10;
-
 has _inet_addr => (
     is      => 'ro',
     default => sub {
@@ -147,10 +144,6 @@ sub unlock {
     $self->fh( $self->_fh_builder );
     $self->_is_locked(0);
     return 1;
-}
-
-sub DESTROY {
-    $_[0]->unlock;
 }
 
 1;
@@ -243,10 +236,17 @@ address as well as the required port number.
 As soon as the B<Lock::Socket> object goes out of scope the port is
 closed and the lock can be obtained by someone else.
 
+If you want to keep holding onto a lock socket after a call to C<exec>
+(perhaps after forking) read about the C<$^F> variable in L<perlvar>,
+as you will probably have to set it to ensure the socket is not closed:
+
+    use List::Util qw/max/;
+    $^F = max($^F, $sock->fh->fileno);
+
 =head1 SEE ALSO
 
 There are many other locking modules available on CPAN, but most of
-them use some kind of file or flock-based locking with various issues.
+them use some kind of file or flock-based locking.
 
 =head1 AUTHOR
 
