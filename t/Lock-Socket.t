@@ -18,13 +18,14 @@ my $PORT2 = 24414;
 my $sock = Lock::Socket->new( port => $PORT1 );
 isa_ok $sock, 'Lock::Socket';
 
-is $sock->is_locked, 0, 'new not locked';
-is $sock->lock,      1, 'lock';
-is $sock->is_locked, 1, 'is_locked';
-is $sock->lock,      1, 'lock ok when locked';
-is $sock->unlock,    1, 'unlock ok';
-is $sock->unlock,    1, 'unlock still ok';
-is $sock->lock,      1, 're-lock ok';
+like $sock->addr,    qr/^127.\d+.\d+.1$/, $sock->addr . ' is saved';
+is $sock->is_locked, 0,                   'new not locked';
+is $sock->lock,      1,                   'lock';
+is $sock->is_locked, 1,                   'is_locked';
+is $sock->lock,      1,                   'lock ok when locked';
+is $sock->unlock,    1,                   'unlock ok';
+is $sock->unlock,    1,                   'unlock still ok';
+is $sock->lock,      1,                   're-lock ok';
 
 # Cannot take the same lock
 my $e = exception {
