@@ -241,10 +241,17 @@ closed and the lock can be obtained by someone else.
 
 If you want to keep holding onto a lock socket after a call to C<exec>
 (perhaps after forking) read about the C<$^F> variable in L<perlvar>,
-as you will probably have to set it to ensure the socket is not closed:
+as you have to set it B<before> creating a lock socket to ensure the it
+will not be closed on exec.  See the F<example/solo> file in the
+distribution for a demonstration:
 
-    use List::Util qw/max/;
-    $^F = max($^F, $sock->fh->fileno);
+    usage: solo PORT COMMAND...
+
+    # terminal 1
+    example solo 1414 sleep 10  # OK
+
+    # terminal 2
+    example/solo 1414 sleep 10  # bind error
 
 =head1 SEE ALSO
 
