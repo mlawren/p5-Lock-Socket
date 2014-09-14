@@ -90,7 +90,9 @@ has port => (
 has addr => (
     is      => 'ro',
     default => sub {
-        join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 );
+        return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
+          unless $^O =~ m/bsd$/;
+        return '127.0.0.1';
     },
 );
 
