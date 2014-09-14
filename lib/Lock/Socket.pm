@@ -235,6 +235,26 @@ single process.
 Note that on most systems the port number needs to be greater than 1024
 unless you are running with elevated privileges.
 
+=head2 Function Interface
+
+The C<lock_socket()> and C<try_lock_socket()> functions both take a
+mandatory port number and an optional IP address as arguments, and
+return a B<Lock::Socket> object on success. C<lock_socket()> will raise
+an exception if the lock cannot be taken whereas C<try_lock_socket()>
+will return C<undef>.
+
+=head2 Object Interface
+
+Objects are instantiated manually as follows.
+
+    my $sock = Lock::Socket->new(
+        port => $PORT, # required
+        addr => $ADDR, # defaults to 127.X.Y.1
+    );
+
+As soon as the B<Lock::Socket> object goes out of scope the port is
+closed and the lock can be obtained by someone else.
+
 =head2 System-wide locks
 
 If you need a single system-wide lock across all users then you should
@@ -269,26 +289,6 @@ dynamically calculate the port number based on the user ID:
 If you do this make sure to pick some random base number instead of
 5197, otherwise all applications that use B<Lock::Socket> will be
 fighting against each other :-)
-
-=head2 Function Interface
-
-The C<lock_socket()> and C<try_lock_socket()> functions both take a
-mandatory port number and an optional IP address as arguments, and
-return a B<Lock::Socket> object on success. C<lock_socket()> will raise
-an exception if the lock cannot be taken whereas C<try_lock_socket()>
-will return C<undef>.
-
-=head2 Object Interface
-
-Objects are instantiated manually as follows.
-
-    my $sock = Lock::Socket->new(
-        port => $PORT, # required
-        addr => $ADDR, # defaults to 127.X.Y.1
-    );
-
-As soon as the B<Lock::Socket> object goes out of scope the port is
-closed and the lock can be obtained by someone else.
 
 =head2 Holding a lock over 'exec'
 
