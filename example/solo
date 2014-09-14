@@ -15,7 +15,7 @@ my $port = shift @ARGV;
 $port += $> if $^O =~ m/bsd$/;
 
 my $lock = lock_socket($port);
-print "Have lock on " . $lock->addr . ':' . $lock->port . "\n";
+printf "Have lock on %s:%d\n", $lock->addr, $lock->port;
 
 exec @ARGV
   or die "exec: $!";
