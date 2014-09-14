@@ -176,7 +176,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_4 (yyyy-mm-dd)
+0.0.3_4 (2014-09-14)
 
 =head1 SYNOPSIS
 
