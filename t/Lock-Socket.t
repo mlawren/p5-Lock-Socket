@@ -31,7 +31,7 @@ is $sock->lock,      1,                   're-lock ok';
 my $e = exception {
     Lock::Socket->new( port => $PORT1 )->lock;
 };
-isa_ok $e, 'Lock::Socket::Error::Bind', $e;
+isa_ok $e, 'Lock::Socket::Error::Bind';
 
 # Can try to take the lock
 is( Lock::Socket->new( port => $PORT1 )->try_lock, 0, 'try fail' );
@@ -56,7 +56,7 @@ $e = exception {
         addr => '127.0.0.2'
     )->lock;
 };
-isa_ok $e, 'Lock::Socket::Error::Bind', $e;
+isa_ok $e, 'Lock::Socket::Error::Bind';
 
 # Confirm that a lock disappears with the object
 undef $sock;

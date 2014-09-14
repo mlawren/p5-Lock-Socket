@@ -1,7 +1,7 @@
-0.0.3_1 (2014-09-13)
+0.0.3_2 (2014-09-14)
 
     API Changes:
-       - None.
+       - Default to 127.0.0.1 on *BSD systems
 
     New Features:
        - None.
@@ -9,6 +9,8 @@
     Enhancements:
        - More informative exception messages
        - Add a demonstration "example/solo" command
+       - Use CARP_NOT to generate errors from caller perspective
+       - Minor code, testing, and documentation improvements
 
     Bug Fixes:
        - try_lock_socket now actually returns 'undef' (intead of '0')

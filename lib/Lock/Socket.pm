@@ -2,11 +2,11 @@ package Lock::Socket::Mo;
 
 #<<< Do not perltidy this
 BEGIN {
-# use Mo qw'builder default import required';
+# use Mo qw'builder default import is required';
 #   The following line of code was produced from the previous line by
 #   Mo::Inline version 0.39
-no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_},$c;my%n=%{$c.::.':E'};map{$s->{$_}=$n{$_}->()if!exists$s->{$_}}keys%n;$s};*{$M.import}=sub{import warnings;$^H|=1538;my($P,%e,%o)=caller.'::';shift;eval"no Mo::$_",&{$M.$_.::e}($P,\%e,\%o,\@_)for@_;return if$e{M};%e=(extends,sub{eval"no $_[0]()";@{$P.ISA}=$_[0]},has,sub{my$n=shift;my$m=sub{$#_?$_[0]{$n}=$_[1]:$_[0]{$n}};@_=(default,@_)if!($#_%2);$m=$o{$_}->($m,$n,@_)for sort keys%o;*{$P.$n}=$m},%e,);*{$P.$_}=$e{$_}for keys%e;@{$P.ISA}=$M.Object};*{$M.'builder::e'}=sub{my($P,$e,$o)=@_;$o->{builder}=sub{my($m,$n,%a)=@_;my$b=$a{builder}or return$m;my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=\&{$P.$b}and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$_[0]->$b:$m->(@_)}}};*{$M.'default::e'}=sub{my($P,$e,$o)=@_;$o->{default}=sub{my($m,$n,%a)=@_;exists$a{default}or return$m;my($d,$r)=$a{default};my$g='HASH'eq($r=ref$d)?sub{+{%$d}}:'ARRAY'eq$r?sub{[@$d]}:'CODE'eq$r?$d:sub{$d};my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=$g and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$g->(@_):$m->(@_)}}};my$i=\&import;*{$M.import}=sub{(@_==2 and not$_[1])?pop@_:@_==1?push@_,grep!/import/,@f:();goto&$i};*{$M.'required::e'}=sub{my($P,$e,$o)=@_;$o->{required}=sub{my($m,$n,%a)=@_;if($a{required}){my$C=*{$P."new"}{CODE}||*{$M.Object::new}{CODE};no warnings 'redefine';*{$P."new"}=sub{my$s=$C->(@_);my%a=@_[1..$#_];if(!exists$a{$n}){require Carp;Carp::croak($n." required")}$s}}$m}};@f=qw[builder default import required];use strict;use warnings;
-    $INC{'Lock/Socket/Mo.pm'} = __FILE__;
+no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_},$c;my%n=%{$c.::.':E'};map{$s->{$_}=$n{$_}->()if!exists$s->{$_}}keys%n;$s};*{$M.import}=sub{import warnings;$^H|=1538;my($P,%e,%o)=caller.'::';shift;eval"no Mo::$_",&{$M.$_.::e}($P,\%e,\%o,\@_)for@_;return if$e{M};%e=(extends,sub{eval"no $_[0]()";@{$P.ISA}=$_[0]},has,sub{my$n=shift;my$m=sub{$#_?$_[0]{$n}=$_[1]:$_[0]{$n}};@_=(default,@_)if!($#_%2);$m=$o{$_}->($m,$n,@_)for sort keys%o;*{$P.$n}=$m},%e,);*{$P.$_}=$e{$_}for keys%e;@{$P.ISA}=$M.Object};*{$M.'builder::e'}=sub{my($P,$e,$o)=@_;$o->{builder}=sub{my($m,$n,%a)=@_;my$b=$a{builder}or return$m;my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=\&{$P.$b}and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$_[0]->$b:$m->(@_)}}};*{$M.'default::e'}=sub{my($P,$e,$o)=@_;$o->{default}=sub{my($m,$n,%a)=@_;exists$a{default}or return$m;my($d,$r)=$a{default};my$g='HASH'eq($r=ref$d)?sub{+{%$d}}:'ARRAY'eq$r?sub{[@$d]}:'CODE'eq$r?$d:sub{$d};my$i=exists$a{lazy}?$a{lazy}:!${$P.':N'};$i or ${$P.':E'}{$n}=$g and return$m;sub{$#_?$m->(@_):!exists$_[0]{$n}?$_[0]{$n}=$g->(@_):$m->(@_)}}};my$i=\&import;*{$M.import}=sub{(@_==2 and not$_[1])?pop@_:@_==1?push@_,grep!/import/,@f:();goto&$i};*{$M.'is::e'}=sub{my($P,$e,$o)=@_;$o->{is}=sub{my($m,$n,%a)=@_;$a{is}or return$m;sub{$#_&&$a{is}eq'ro'&&caller ne'Mo::coerce'?die$n.' is ro':$m->(@_)}}};*{$M.'required::e'}=sub{my($P,$e,$o)=@_;$o->{required}=sub{my($m,$n,%a)=@_;if($a{required}){my$C=*{$P."new"}{CODE}||*{$M.Object::new}{CODE};no warnings 'redefine';*{$P."new"}=sub{my$s=$C->(@_);my%a=@_[1..$#_];if(!exists$a{$n}){require Carp;Carp::croak($n." required")}$s}}$m}};@f=qw[builder default import is required];use strict;use warnings;
+$INC{'Lock/Socket/Mo.pm'} = __FILE__;
 }
 1;
 #>>>
@@ -14,7 +14,6 @@ no warnings;my$M=__PACKAGE__.'::';*{$M.Object::new}=sub{my$c=shift;my$s=bless{@_
 package Lock::Socket::Error;
 use Lock::Socket::Mo;
 use overload '""' => sub { $_[0]->msg }, fallback => 1;
-use Carp ();
 
 has msg => (
     is       => 'ro',
@@ -30,10 +29,15 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.3_1';
+our @VERSION = '0.0.3_2';
+our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
+@Lock::Socket::Error::Usage::ISA  = ('Lock::Socket::Error');
+@Lock::Socket::Error::Import::ISA = ('Lock::Socket::Error');
+
+### Function Interface ###
 
 sub import {
     my $class  = shift;
@@ -43,7 +47,8 @@ sub import {
     foreach my $token (@_) {
         if ( $token eq 'lock_socket' ) {
             *{ $caller . '::lock_socket' } = sub {
-                my $port = shift || Carp::croak('usage: lock_socket($PORT)');
+                my $port = shift
+                  || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
                 my $addr = shift;
                 my $sock = Lock::Socket->new(
                     port => $port,
@@ -56,7 +61,8 @@ sub import {
         elsif ( $token eq 'try_lock_socket' ) {
             *{ $caller . '::try_lock_socket' } = sub {
                 my $port = shift
-                  || Carp::croak('usage: try_lock_socket($PORT)');
+                  || __PACKAGE__->err( 'Usage',
+                    'usage: try_lock_socket($PORT)' );
                 my $addr = shift;
                 my $sock = Lock::Socket->new(
                     port => $port,
@@ -68,10 +74,13 @@ sub import {
               }
         }
         else {
-            Carp::croak 'not exported by Lock::Socket: ' . $token;
+            __PACKAGE__->err( 'Import',
+                'not exported by Lock::Socket: ' . $token );
         }
     }
 }
+
+### Object Attributes ###
 
 has port => (
     is       => 'ro',
@@ -81,7 +90,9 @@ has port => (
 has addr => (
     is      => 'ro',
     default => sub {
-        join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 );
+        return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
+          unless $^O =~ m/bsd$/;
+        return '127.0.0.1';
     },
 );
 
@@ -93,8 +104,8 @@ has _inet_addr => (
     },
 );
 
-has fh => (
-    is      => 'ro',
+has _fh => (
+    is      => 'rw',
     lazy    => 0,
     builder => '_fh_builder',
 );
@@ -106,21 +117,27 @@ sub _fh_builder {
     return $fh;
 }
 
+sub fh {
+    $_[0]->_fh;
+}
+
 has _is_locked => (
     is      => 'rw',
     lazy    => 0,
     default => sub { 0 },
 );
 
+sub is_locked {
+    $_[0]->_is_locked;
+}
+
+### Object Methods ###
+
 sub err {
     my $self  = shift;
     my $class = 'Lock::Socket::Error::' . $_[0];
-    die $class->new(
-        msg => sprintf( "%s at %s line %d\n", $_[1], ( caller(2) )[ 1, 2 ] ) );
-}
-
-sub is_locked {
-    $_[0]->_is_locked;
+    local @CARP_NOT = __PACKAGE__;
+    die $class->new( msg => Carp::shortmess( $_[1] ) );
 }
 
 sub lock {
@@ -142,9 +159,11 @@ sub try_lock {
 sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
-    close( $self->fh );
-    $self->fh( $self->_fh_builder );
+
+    close( $self->_fh );
+    $self->_fh( $self->_fh_builder );
     $self->_is_locked(0);
+
     return 1;
 }
 
@@ -157,7 +176,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_1 (2014-09-13) development release.
+0.0.3_2 (2014-09-14) development release.
 
 =head1 SYNOPSIS
 
@@ -207,25 +226,27 @@ Lock::Socket - application lock/mutex module based on sockets
 
 B<Lock::Socket> provides cooperative inter-process locking for
 applications that need to ensure that only one process is running at a
-time.  This module works by binding to a port on a loopback (127/8)
-address, which the operating system conveniently restricts to a single
-process.
+time.  This module works by binding an INET socket to a port on a
+loopback (127.0.0.0/8) address which the operating system conveniently
+restricts to a single process.
 
-Both C<lock_socket> and C<try_lock_socket> take a mandatory port number
-and an optional IP address as arguments, and return a B<Lock::Socket>
-object on success. C<lock_socket> will raise an exception if the lock
-cannot be taken and C<try_lock_socket> will return undef. Objects are
-instantiated manually as follows:
+The C<lock_socket()> and C<try_lock_socket()> functions both take a
+mandatory port number and an optional IP address as arguments, and
+return a B<Lock::Socket> object on success. C<lock_socket()> will raise
+an exception if the lock cannot be taken whereas C<try_lock_socket()>
+will return C<undef>.
+
+Objects are instantiated manually as follows:
 
     Lock::Socket->new(
         port => $PORT, # required
         addr => $ADDR, # defaults to 127.X.Y.1
     );
 
-On most systems the port number needs to be greater than 1024 unless
-you are running as root. If C<addr> is not given then it is calculated
-as follows, which provides automatic per-user namespacing up to a
-maximum user ID of 65536:
+On most systems the C<$PORT> number needs to be greater than 1024
+unless you are running as root.
+
+If C<$ADDR> is not provided then it is calculated as follows:
 
     Octet   Value
     ------  ------------------------------
@@ -234,9 +255,9 @@ maximum user ID of 65536:
     3       Second byte of user ID
     4       1
 
-The calculated address can be read back from C<< $sock->addr >>.  If
-you want a system-wide namespace you can manually specify the address
-as well as the required port number.
+This scheme provides something of an automatic per-user lock for a
+given C<$PORT>, provided there is no user ID greater than 65536. The
+calculated address can be read back via the C<addr()> method.
 
 As soon as the B<Lock::Socket> object goes out of scope the port is
 closed and the lock can be obtained by someone else.
@@ -250,7 +271,7 @@ distribution for a demonstration:
     usage: solo PORT COMMAND...
 
     # terminal 1
-    example solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
+    example/solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
 
     # terminal 2
     example/solo 1414 sleep 10  # bind error
