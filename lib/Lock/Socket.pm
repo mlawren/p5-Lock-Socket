@@ -37,6 +37,8 @@ our @CARP_NOT;
 @Lock::Socket::Error::Usage::ISA  = ('Lock::Socket::Error');
 @Lock::Socket::Error::Import::ISA = ('Lock::Socket::Error');
 
+### Function Interface ###
+
 sub import {
     my $class  = shift;
     my $caller = caller;
@@ -77,6 +79,8 @@ sub import {
         }
     }
 }
+
+### Object Attributes ###
 
 has port => (
     is       => 'ro',
@@ -121,16 +125,17 @@ has _is_locked => (
     default => sub { 0 },
 );
 
+sub is_locked {
+    $_[0]->_is_locked;
+}
+
+### Object Methods ###
+
 sub err {
     my $self  = shift;
     my $class = 'Lock::Socket::Error::' . $_[0];
-
     local @CARP_NOT = __PACKAGE__;
-    die $class->new( msg => Carp::shortmess( $_[1] ), );
-}
-
-sub is_locked {
-    $_[0]->_is_locked;
+    die $class->new( msg => Carp::shortmess( $_[1] ) );
 }
 
 sub lock {
@@ -152,9 +157,11 @@ sub try_lock {
 sub unlock {
     my $self = shift;
     return 1 unless $self->_is_locked;
+
     close( $self->_fh );
     $self->_fh( $self->_fh_builder );
     $self->_is_locked(0);
+
     return 1;
 }
 
