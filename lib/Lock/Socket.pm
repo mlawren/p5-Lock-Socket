@@ -180,7 +180,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 SYNOPSIS
 
-    ### Function API
+    ### Function API ###
     use Lock::Socket qw/lock_socket try_lock_socket/;
 
     # Raises exception if cannot lock
@@ -191,7 +191,7 @@ Lock::Socket - application lock/mutex module based on sockets
         die "handle your own error";
 
 
-    ### Object API
+    ### Object API ###
     use Lock::Socket;
 
     # Create a socket
