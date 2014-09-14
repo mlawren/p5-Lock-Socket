@@ -202,6 +202,8 @@ Lock::Socket - application lock/mutex module based on sockets
 
     # Can check its status in case you forgot
     my $status = $sock->is_locked; # 1 (or 0)
+    my $addr   = $sock->addr;      # 127.X.Y.1
+    my $port   = $sock->port;      # 15151
 
     # Re-locking changes nothing
     $sock->lock;
