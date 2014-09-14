@@ -29,7 +29,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.3_2';
+our @VERSION = '0.0.3_3';
 our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
@@ -176,11 +176,11 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_2 (2014-09-14) development release.
+0.0.3_3 (2014-09-14) development release.
 
 =head1 SYNOPSIS
 
-    ### Function API
+    ### Function API ###
     use Lock::Socket qw/lock_socket try_lock_socket/;
 
     # Raises exception if cannot lock
@@ -191,7 +191,7 @@ Lock::Socket - application lock/mutex module based on sockets
         die "handle your own error";
 
 
-    ### Object API
+    ### Object API ###
     use Lock::Socket;
 
     # Create a socket
@@ -202,6 +202,8 @@ Lock::Socket - application lock/mutex module based on sockets
 
     # Can check its status in case you forgot
     my $status = $sock->is_locked; # 1 (or 0)
+    my $addr   = $sock->addr;      # 127.X.Y.1
+    my $port   = $sock->port;      # 15151
 
     # Re-locking changes nothing
     $sock->lock;
@@ -275,6 +277,22 @@ distribution for a demonstration:
 
     # terminal 2
     example/solo 1414 sleep 10  # bind error
+
+=head1 CAVEATS
+
+Most operating systems implement the L<Ephemeral
+Port|http://en.wikipedia.org/wiki/Ephemeral_port> concept - a range of
+ports which may be used on a short-term basis for connecting to
+services. It could occur that some unrelated process uses, if
+temporarily, the port that your application defines for locking.
+
+Unfortunately the ephemeral port range varies from system to system.
+Based on the wikipedia page mentioned above, chances are good that a
+port between 5001 and 32767 will work, particularly if your system
+loopback device is configured with a /8 netmask (i.e. supports the
+127.X.Y.1 scheme). To be sure you should investigate the platorms your
+application runs on, and possibly choose an appropriate value at
+runtime.
 
 =head1 SEE ALSO
 

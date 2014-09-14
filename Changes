@@ -1,4 +1,4 @@
-0.0.3_2 (2014-09-14)
+0.0.3_3 (2014-09-14)
 
     API Changes:
        - Default to 127.0.0.1 on *BSD systems
