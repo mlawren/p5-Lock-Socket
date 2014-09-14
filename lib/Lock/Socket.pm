@@ -30,6 +30,7 @@ use Lock::Socket::Mo;
 use Socket;
 
 our @VERSION = '0.0.3_2';
+our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
 @Lock::Socket::Error::Socket::ISA = ('Lock::Socket::Error');
@@ -123,8 +124,9 @@ has _is_locked => (
 sub err {
     my $self  = shift;
     my $class = 'Lock::Socket::Error::' . $_[0];
-    die $class->new(
-        msg => sprintf( "%s at %s line %d\n", $_[1], ( caller(2) )[ 1, 2 ] ) );
+
+    local @CARP_NOT = __PACKAGE__;
+    die $class->new( msg => Carp::shortmess( $_[1] ), );
 }
 
 sub is_locked {

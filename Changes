@@ -9,6 +9,7 @@
     Enhancements:
        - More informative exception messages
        - Add a demonstration "example/solo" command
+       - Use CARP_NOT to generate errors from caller perspective
        - Minor code, testing, and documentation improvements
 
     Bug Fixes:
