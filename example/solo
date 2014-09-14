@@ -11,7 +11,10 @@ die "usage: $0 PORT COMMAND...\n"
 # Unset close-on-exec
 $^F = 3;
 
-my $lock = lock_socket( shift @ARGV );
+my $port = shift @ARGV;
+$port += $> if $^O =~ m/bsd$/;
+
+my $lock = lock_socket($port);
 print "Have lock on " . $lock->addr . ':' . $lock->port . "\n";
 
 exec @ARGV

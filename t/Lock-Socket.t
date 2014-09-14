@@ -11,8 +11,8 @@ is "$error", 'usage error', 'error stringification';
 
 like exception { Lock::Socket->new }, qr/required/, 'required attributes';
 
-my $PORT1 = 14414;
-my $PORT2 = 24414;
+my $PORT1 = 14414 + int( rand(1000) );
+my $PORT2 = 24414 + int( rand(1000) );
 
 # Now take a lock
 my $sock = Lock::Socket->new( port => $PORT1 );

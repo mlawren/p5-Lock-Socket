@@ -29,7 +29,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.3_3';
+our @VERSION = '0.0.3_4';
 our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
@@ -176,7 +176,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_3 (2014-09-14) development release.
+0.0.3_4 (2014-09-14)
 
 =head1 SYNOPSIS
 
@@ -184,43 +184,43 @@ Lock::Socket - application lock/mutex module based on sockets
     use Lock::Socket qw/lock_socket try_lock_socket/;
 
     # Raises exception if cannot lock
-    my $lock = lock_socket(15151);
+    my $lock = lock_socket(5197);
 
     # Or just return undef
-    my $lock2 = try_lock_socket(15151) or
-        die "handle your own error";
-
+    my $lock2 = try_lock_socket(5197)
+      or die "handle your own error";
 
     ### Object API ###
     use Lock::Socket;
 
     # Create a socket
-    my $sock = Lock::Socket->new(port => 15151);
+    my $sock = Lock::Socket->new( port => 5197 );
 
     # Lock or raise an exception
     $sock->lock;
 
     # Can check its status in case you forgot
-    my $status = $sock->is_locked; # 1 (or 0)
-    my $addr   = $sock->addr;      # 127.X.Y.1
-    my $port   = $sock->port;      # 15151
+    my $status = $sock->is_locked;    # 1 (or 0)
+    my $addr   = $sock->addr;         # 127.X.Y.1
+    my $port   = $sock->port;         # 5197
 
     # Re-locking changes nothing
     $sock->lock;
 
     # New lock on same port fails
-    my $sock2 = Lock::Socket->new(port => 15151);
-    eval { $sock2->lock }; # exception
+    my $sock2 = Lock::Socket->new( port => 5197 );
+    eval { $sock2->lock };            # exception
 
     # But trying to get a lock is ok
-    my $status = $sock2->try_lock;       # 0
-    my $same_status = $sock2->is_locked; # 0
+    my $status      = $sock2->try_lock;     # 0
+    my $same_status = $sock2->is_locked;    # 0
 
     # If you need the underlying filehandle
     my $fh = $sock->fh;
 
     # You can manually unlock
     $sock->unlock;
+
     # ... or unlocking is automatic on scope exit
     undef $sock;
 
@@ -229,8 +229,13 @@ Lock::Socket - application lock/mutex module based on sockets
 B<Lock::Socket> provides cooperative inter-process locking for
 applications that need to ensure that only one process is running at a
 time.  This module works by binding an INET socket to a port on a
-loopback (127.0.0.0/8) address which the operating system conveniently
-restricts to a single process.
+loopback address which the operating system conveniently restricts to a
+single process.
+
+Note that on most systems the port number needs to be greater than 1024
+unless you are running with elevated privileges.
+
+=head2 Function Interface
 
 The C<lock_socket()> and C<try_lock_socket()> functions both take a
 mandatory port number and an optional IP address as arguments, and
@@ -238,17 +243,27 @@ return a B<Lock::Socket> object on success. C<lock_socket()> will raise
 an exception if the lock cannot be taken whereas C<try_lock_socket()>
 will return C<undef>.
 
-Objects are instantiated manually as follows:
+=head2 Object Interface
 
-    Lock::Socket->new(
+Objects are instantiated manually as follows.
+
+    my $sock = Lock::Socket->new(
         port => $PORT, # required
         addr => $ADDR, # defaults to 127.X.Y.1
     );
 
-On most systems the C<$PORT> number needs to be greater than 1024
-unless you are running as root.
+As soon as the B<Lock::Socket> object goes out of scope the port is
+closed and the lock can be obtained by someone else.
 
-If C<$ADDR> is not provided then it is calculated as follows:
+=head2 System-wide locks
+
+If you need a single system-wide lock across all users then you should
+specify both the port and the adddress explicitly, because
+B<Lock::Socket> has a built-in per-user feature as described next.
+
+=head2 Per-user locks
+
+By default the loopback address is calculated as follows:
 
     Octet   Value
     ------  ------------------------------
@@ -258,33 +273,50 @@ If C<$ADDR> is not provided then it is calculated as follows:
     4       1
 
 This scheme provides something of an automatic per-user lock for a
-given C<$PORT>, provided there is no user ID greater than 65536. The
+given port, provided there is no user ID greater than 65536. The
 calculated address can be read back via the C<addr()> method.
 
-As soon as the B<Lock::Socket> object goes out of scope the port is
-closed and the lock can be obtained by someone else.
+Unfortunately on BSD systems the loopback interface appears to be
+configured with a /32 netmask so there the above calculation is I<not>
+performed and the address defaults to 127.0.0.1 resulting in a
+system-wide lock.
+
+So in order to be sure you have per-user port uniqueness you can
+dynamically calculate the port number based on the user ID:
+
+    my $port = 5197 + $>;
+
+If you do this make sure to pick some random base number instead of
+5197, otherwise all applications that use B<Lock::Socket> will be
+fighting against each other :-)
+
+=head2 Holding a lock over 'exec'
 
 If you want to keep holding onto a lock socket after a call to C<exec>
-(perhaps after forking) read about the C<$^F> variable in L<perlvar>,
-as you have to set it B<before> creating a lock socket to ensure the it
-will not be closed on exec.  See the F<example/solo> file in the
-distribution for a demonstration:
+(perhaps after forking) you should read about the C<$^F> variable in
+L<perlvar>, as you have to set it B<before> creating a lock socket to
+ensure the socket will not be closed on exec.
+
+=head2 Example application
+
+See the F<example/solo> file in the distribution for a B<Lock::Socket>
+demonstration which provides a command-line lock:
 
     usage: solo PORT COMMAND...
 
     # terminal 1
-    example/solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
+    $ example/solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
 
     # terminal 2
-    example/solo 1414 sleep 10  # bind error
+    $ example/solo 1414 sleep 10  # bind error
 
 =head1 CAVEATS
 
 Most operating systems implement the L<Ephemeral
-Port|http://en.wikipedia.org/wiki/Ephemeral_port> concept - a range of
-ports which may be used on a short-term basis for connecting to
-services. It could occur that some unrelated process uses, if
-temporarily, the port that your application defines for locking.
+Port|http://en.wikipedia.org/wiki/Ephemeral_port> concept.  If you
+select a port from that range it could be possible that some unrelated
+process uses, if temporarily, the port that your application defines
+for locking.
 
 Unfortunately the ephemeral port range varies from system to system.
 Based on the wikipedia page mentioned above, chances are good that a
@@ -298,11 +330,6 @@ runtime.
 
 There are many other locking modules available on CPAN, but most of
 them use some kind of file or flock-based locking.
-
-=head1 BUGS
-
-At the moment all of the tests fail on FreeBSD systems. Anyone with a
-clue or a box to test with please get in touch.
 
 =head1 AUTHOR
 

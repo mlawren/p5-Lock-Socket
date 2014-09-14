@@ -19,8 +19,8 @@ $e = exception {
 };
 isa_ok $e, 'Lock::Socket::Error::Import';
 
-my $PORT1 = 14414;
-my $PORT2 = 24414;
+my $PORT1 = 14414 + int( rand(1000) );
+my $PORT2 = 24414 + int( rand(1000) );
 
 # Now take a lock
 my $sock = lock_socket($PORT1);
