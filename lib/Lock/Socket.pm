@@ -278,6 +278,22 @@ distribution for a demonstration:
     # terminal 2
     example/solo 1414 sleep 10  # bind error
 
+=head1 CAVEATS
+
+Most operating systems implement the L<Ephemeral
+Port|http://en.wikipedia.org/wiki/Ephemeral_port> concept - a range of
+ports which may be used on a short-term basis for connecting to
+services. It could occur that some unrelated process uses, if
+temporarily, the port that your application defines for locking.
+
+Unfortunately the ephemeral port range varies from system to system.
+Based on the wikipedia page mentioned above, chances are good that a
+port between 5001 and 32767 will work, particularly if your system
+loopback device is configured with a /8 netmask (i.e. supports the
+127.X.Y.1 scheme). To be sure you should investigate the platorms your
+application runs on, and possibly choose an appropriate value at
+runtime.
+
 =head1 SEE ALSO
 
 There are many other locking modules available on CPAN, but most of
