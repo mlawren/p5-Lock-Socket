@@ -235,9 +235,15 @@ single process.
 Note that on most systems the port number needs to be greater than 1024
 unless you are running with elevated privileges.
 
-On BSD systems the loopback interface appears to be configured with a
-/32 netmask so the address defaults to 127.0.0.1. For everything else
-when the address is not provided it gets calculated as follows:
+=head2 System-wide locks
+
+If you need a single system-wide lock across all users then you should
+specify both the port and the adddress explicitly, because
+B<Lock::Socket> has a built-in per-user feature as described next.
+
+=head2 Per-user locks
+
+By default the loopback address is calculated as follows:
 
     Octet   Value
     ------  ------------------------------
@@ -249,6 +255,19 @@ when the address is not provided it gets calculated as follows:
 This scheme provides something of an automatic per-user lock for a
 given port, provided there is no user ID greater than 65536. The
 calculated address can be read back via the C<addr()> method.
+
+Unfortunately on BSD systems the loopback interface appears to be
+configured with a /32 netmask so there the above calculation is I<not>
+performed and the address defaults to 127.0.0.1 resulting in a
+system-wide lock.  You can possibly achieve the same per-user
+uniqueness by dynamically calculating the port number based on the user
+ID:
+
+    my $port = 5000 + $>;
+
+If you do this make sure to pick some random base number instead of
+5000, otherwise all applications that use B<Lock::Socket> will be
+fighting against each other :-)
 
 =head2 Function Interface
 
