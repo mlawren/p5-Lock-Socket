@@ -176,7 +176,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_3 (yyyy-mm-dd) development release.
+0.0.3_3 (2014-09-14) development release.
 
 =head1 SYNOPSIS
 
