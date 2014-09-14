@@ -184,43 +184,43 @@ Lock::Socket - application lock/mutex module based on sockets
     use Lock::Socket qw/lock_socket try_lock_socket/;
 
     # Raises exception if cannot lock
-    my $lock = lock_socket(15151);
+    my $lock = lock_socket(5197);
 
     # Or just return undef
-    my $lock2 = try_lock_socket(15151) or
-        die "handle your own error";
-
+    my $lock2 = try_lock_socket(5197)
+      or die "handle your own error";
 
     ### Object API ###
     use Lock::Socket;
 
     # Create a socket
-    my $sock = Lock::Socket->new(port => 15151);
+    my $sock = Lock::Socket->new( port => 5197 );
 
     # Lock or raise an exception
     $sock->lock;
 
     # Can check its status in case you forgot
-    my $status = $sock->is_locked; # 1 (or 0)
-    my $addr   = $sock->addr;      # 127.X.Y.1
-    my $port   = $sock->port;      # 15151
+    my $status = $sock->is_locked;    # 1 (or 0)
+    my $addr   = $sock->addr;         # 127.X.Y.1
+    my $port   = $sock->port;         # 5197
 
     # Re-locking changes nothing
     $sock->lock;
 
     # New lock on same port fails
-    my $sock2 = Lock::Socket->new(port => 15151);
-    eval { $sock2->lock }; # exception
+    my $sock2 = Lock::Socket->new( port => 5197 );
+    eval { $sock2->lock };            # exception
 
     # But trying to get a lock is ok
-    my $status = $sock2->try_lock;       # 0
-    my $same_status = $sock2->is_locked; # 0
+    my $status      = $sock2->try_lock;     # 0
+    my $same_status = $sock2->is_locked;    # 0
 
     # If you need the underlying filehandle
     my $fh = $sock->fh;
 
     # You can manually unlock
     $sock->unlock;
+
     # ... or unlocking is automatic on scope exit
     undef $sock;
 
@@ -259,14 +259,15 @@ calculated address can be read back via the C<addr()> method.
 Unfortunately on BSD systems the loopback interface appears to be
 configured with a /32 netmask so there the above calculation is I<not>
 performed and the address defaults to 127.0.0.1 resulting in a
-system-wide lock.  You can possibly achieve the same per-user
-uniqueness by dynamically calculating the port number based on the user
-ID:
+system-wide lock.
 
-    my $port = 5000 + $>;
+So in order to be sure you have per-user port uniqueness you can
+dynamically calculate the port number based on the user ID:
+
+    my $port = 5197 + $>;
 
 If you do this make sure to pick some random base number instead of
-5000, otherwise all applications that use B<Lock::Socket> will be
+5197, otherwise all applications that use B<Lock::Socket> will be
 fighting against each other :-)
 
 =head2 Function Interface
