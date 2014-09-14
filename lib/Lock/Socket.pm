@@ -215,25 +215,27 @@ Lock::Socket - application lock/mutex module based on sockets
 
 B<Lock::Socket> provides cooperative inter-process locking for
 applications that need to ensure that only one process is running at a
-time.  This module works by binding to a port on a loopback (127/8)
-address, which the operating system conveniently restricts to a single
-process.
+time.  This module works by binding an INET socket to a port on a
+loopback (127.0.0.0/8) address which the operating system conveniently
+restricts to a single process.
 
-Both C<lock_socket> and C<try_lock_socket> take a mandatory port number
-and an optional IP address as arguments, and return a B<Lock::Socket>
-object on success. C<lock_socket> will raise an exception if the lock
-cannot be taken and C<try_lock_socket> will return undef. Objects are
-instantiated manually as follows:
+The C<lock_socket()> and C<try_lock_socket()> functions both take a
+mandatory port number and an optional IP address as arguments, and
+return a B<Lock::Socket> object on success. C<lock_socket()> will raise
+an exception if the lock cannot be taken whereas C<try_lock_socket()>
+will return C<undef>.
+
+Objects are instantiated manually as follows:
 
     Lock::Socket->new(
         port => $PORT, # required
         addr => $ADDR, # defaults to 127.X.Y.1
     );
 
-On most systems the port number needs to be greater than 1024 unless
-you are running as root. If C<addr> is not given then it is calculated
-as follows, which provides automatic per-user namespacing up to a
-maximum user ID of 65536:
+On most systems the C<$PORT> number needs to be greater than 1024
+unless you are running as root.
+
+If C<$ADDR> is not provided then it is calculated as follows:
 
     Octet   Value
     ------  ------------------------------
@@ -242,9 +244,9 @@ maximum user ID of 65536:
     3       Second byte of user ID
     4       1
 
-The calculated address can be read back from C<< $sock->addr >>.  If
-you want a system-wide namespace you can manually specify the address
-as well as the required port number.
+This scheme provides something of an automatic per-user lock for a
+given C<$PORT>, provided there is no user ID greater than 65536. The
+calculated address can be read back via the C<addr()> method.
 
 As soon as the B<Lock::Socket> object goes out of scope the port is
 closed and the lock can be obtained by someone else.
@@ -258,7 +260,7 @@ distribution for a demonstration:
     usage: solo PORT COMMAND...
 
     # terminal 1
-    example solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
+    example/solo 1414 sleep 10  # Have lock on 127.3.232.1:1414
 
     # terminal 2
     example/solo 1414 sleep 10  # bind error
