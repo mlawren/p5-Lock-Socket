@@ -47,16 +47,19 @@ is $sock2->try_lock, 1, 'try_lock 2';
 
 # We can also take the same port at a different address
 my $sock3 = Lock::Socket->new( port => $PORT2, addr => '127.0.0.2' );
-is $sock3->lock, 1, 'lock 3';
 
-# But we can't take that lock again either
-$e = exception {
-    Lock::Socket->new(
-        port => $PORT2,
-        addr => '127.0.0.2'
-    )->lock;
-};
-isa_ok $e, 'Lock::Socket::Error::Bind';
+# 127.0.0.2 doesn't exist on BSDs
+if ( $sock3->try_lock == 1 ) {
+
+    # But we can't take that lock again either
+    $e = exception {
+        Lock::Socket->new(
+            port => $PORT2,
+            addr => '127.0.0.2'
+        )->lock;
+    };
+    isa_ok $e, 'Lock::Socket::Error::Bind';
+}
 
 # Confirm that a lock disappears with the object
 undef $sock;
