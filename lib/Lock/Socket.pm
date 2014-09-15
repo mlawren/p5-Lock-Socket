@@ -247,8 +247,8 @@ system) to clean up neatly when your process exits, so there are no
 stale locks to deal with.
 
 =item * B<Lock::Socket> relies on functionality that is well supported
-by practically every operating system - i.e. there are no issues on
-Win32.
+by anything that Perl runs on: no issues with flock(2) support on Win32
+for example.
 
 =back
 
@@ -263,6 +263,9 @@ system-wide (we can't use user directories).
 
 =item * B<Lock::Socket> has no ability to identify which process is
 holding a lock.
+
+=item * B<Lock::Socket> cannot be used for locking access to files on
+NFS shares, only local resources.
 
 =back
 
