@@ -29,7 +29,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.3_4';
+our @VERSION = '0.0.4';
 our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
@@ -176,7 +176,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.3_4 (2014-09-14)
+0.0.4 (2014-09-15)
 
 =head1 SYNOPSIS
 
@@ -232,16 +232,53 @@ time.  This module works by binding an INET socket to a port on a
 loopback address which the operating system conveniently restricts to a
 single process.
 
-Note that on most systems the port number needs to be greater than 1024
-unless you are running with elevated privileges.
+Should you use B<Lock::Socket> instead of a file-based module? Perhaps.
+Here are some statements that I believe to be true that work in its
+favour:
+
+=over
+
+=item * B<Lock::Socket> guarantees (through the operating system) that
+no two applications will hold the same lock: there is no race
+condition.
+
+=item * B<Lock::Socket> is guaranteed (again through the operating
+system) to clean up neatly when your process exits, so there are no
+stale locks to deal with.
+
+=item * B<Lock::Socket> relies on functionality that is well supported
+by anything that Perl runs on: no issues with flock(2) support on Win32
+for example.
+
+=back
+
+The following statements I also believe to be true that work against
+the module:
+
+=over
+
+=item * There is a slight chance that some unrelated process can grab
+the lock that you need by accident, as the available lock namespace is
+system-wide (we can't use user directories).
+
+=item * B<Lock::Socket> has no ability to identify which process is
+holding a lock.
+
+=item * B<Lock::Socket> cannot be used for locking access to files on
+NFS shares, only local resources.
+
+=back
+
+I'll leave it up to you and your particular situation to know if this
+is the right module for you.
 
 =head2 Function Interface
 
 The C<lock_socket()> and C<try_lock_socket()> functions both take a
-mandatory port number and an optional IP address as arguments, and
+port number (mandatory) and an IP address (optional) as arguments and
 return a B<Lock::Socket> object on success. C<lock_socket()> will raise
 an exception if the lock cannot be taken whereas C<try_lock_socket()>
-will return C<undef>.
+will simply return C<undef>.
 
 =head2 Object Interface
 
@@ -252,8 +289,9 @@ Objects are instantiated manually as follows.
         addr => $ADDR, # defaults to 127.X.Y.1
     );
 
-As soon as the B<Lock::Socket> object goes out of scope the port is
-closed and the lock can be obtained by someone else.
+As soon as the B<Lock::Socket> object goes out of scope (or rather the
+underlying filehandle object) the port is closed and the lock can be
+obtained by someone else.
 
 =head2 System-wide locks
 
@@ -328,8 +366,8 @@ runtime.
 
 =head1 SEE ALSO
 
-There are many other locking modules available on CPAN, but most of
-them use some kind of file or flock-based locking.
+There are many other locking modules available on CPAN, most of them
+relying on some type of file lock.
 
 =head1 AUTHOR
 

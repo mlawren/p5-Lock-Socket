@@ -32,4 +32,4 @@ resources:
   homepage: https://github.com/mlawren/p5-Lock-Socket
   license: http://opensource.org/licenses/gpl-3.0.html
   repository: git://github.com/mlawren/p5-Lock-Socket.git
-version: 0.0.3_4
+version: 0.0.4
