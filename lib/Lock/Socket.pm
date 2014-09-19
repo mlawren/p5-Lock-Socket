@@ -111,6 +111,7 @@ has port => (
 has addr => (
     is      => 'ro',
     default => \&uid_ip,
+
 );
 
 has _inet_addr => (
@@ -218,8 +219,8 @@ Lock::Socket - application lock/mutex module based on sockets
 
     # Can check its status in case you forgot
     my $status = $sock->is_locked;    # 1 (or 0)
-    my $addr   = $sock->addr;         # 127.X.Y.1
-    my $port   = $sock->port;         # 5197
+    my $addr   = $sock->addr;
+    my $port   = $sock->port;
 
     # Re-locking changes nothing
     $sock->lock;
@@ -291,34 +292,26 @@ is the right module for you.
 
 =head2 Function Interface
 
-The C<lock_socket()> and C<try_lock_socket()> functions both take a
-port number (mandatory) and an IP address (optional) as arguments and
-return a B<Lock::Socket> object on success. C<lock_socket()> will raise
-an exception if the lock cannot be taken whereas C<try_lock_socket()>
-will simply return C<undef>.
+=over
 
-=head2 Object Interface
+=item lock_socket($PORT, [$ADDR]) -> Lock::Socket
 
-Objects are instantiated manually as follows.
+Attempts to lock $PORT (on 127.0.0.1 by default) and returns a
+B<Lock::Socket> object. Raises an exception if the lock cannot be
+taken.
 
-    my $sock = Lock::Socket->new(
-        port => $PORT, # required
-        addr => $ADDR, # defaults to 127.X.Y.1
-    );
+=item lock_user_socket($PORT, [$ADDR]) -> Lock::Socket
 
-As soon as the B<Lock::Socket> object goes out of scope (or rather the
-underlying filehandle object) the port is closed and the lock can be
-obtained by someone else.
+Similarly to C<lock_socket()> this function attempts to take a lock and
+returns a B<Lock::Socket> object or raises an exception if the lock
+cannot be taken. The difference here is that this function attempts to
+take a lock that is per-user, instead of system wide.
 
-=head2 System-wide locks
+over
 
-If you need a single system-wide lock across all users then you should
-specify both the port and the adddress explicitly, because
-B<Lock::Socket> has a built-in per-user feature as described next.
+=item * The actual lock port is calculated as $PORT + $UID.
 
-=head2 Per-user locks
-
-By default the loopback address is calculated as follows:
+=item * The loopback $ADDR by default is calculated as follows:
 
     Octet   Value
     ------  ------------------------------
@@ -327,23 +320,34 @@ By default the loopback address is calculated as follows:
     3       Second byte of user ID
     4       1
 
-This scheme provides something of an automatic per-user lock for a
-given port, provided there is no user ID greater than 65536. The
-calculated address can be read back via the C<addr()> method.
+=back
 
 Unfortunately on BSD systems the loopback interface appears to be
 configured with a /32 netmask so there the above calculation is I<not>
-performed and the address defaults to 127.0.0.1 resulting in a
-system-wide lock.
+performed and the address defaults to 127.0.0.1.
 
-So in order to be sure you have per-user port uniqueness you can
-dynamically calculate the port number based on the user ID:
+=item try_lock_socket($PORT, [$ADDR]) -> Lock::Socket | undef
 
-    my $port = 5197 + $>;
+Same as C<lock_socket()> but returns undef on failure.
 
-If you do this make sure to pick some random base number instead of
-5197, otherwise all applications that use B<Lock::Socket> will be
-fighting against each other :-)
+=item try_lock_user_socket($PORT, [$ADDR]) -> Lock::Socket | undef
+
+Same as C<lock_user_socket()> but returns undef on failure.
+
+=back
+
+=head2 Object Interface
+
+Objects are instantiated manually as follows.
+
+    my $sock = Lock::Socket->new(
+        port => $PORT, # required
+        addr => $ADDR, # defaults to 127.0.0.1
+    );
+
+As soon as the B<Lock::Socket> object goes out of scope (or rather the
+underlying filehandle object) the port is closed and the lock can be
+obtained by someone else.
 
 =head2 Holding a lock over 'exec'
 
