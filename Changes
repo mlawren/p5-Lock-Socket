@@ -7,7 +7,7 @@
         - None.
 
     Enhancements:
-        - None.
+        - Make exported functions non-anonymous
 
     Bug Fixes:
         - Darwin (MacOS?) also only configures 127.0.0.1/32

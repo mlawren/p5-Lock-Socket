@@ -39,6 +39,31 @@ our @CARP_NOT;
 
 ### Function Interface ###
 
+sub lock_socket {
+    my $port = shift
+      || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
+    my $addr = shift;
+    my $sock = Lock::Socket->new(
+        port => $port,
+        defined $addr ? ( addr => $addr ) : (),
+    );
+    $sock->lock;
+    return $sock;
+}
+
+sub try_lock_socket {
+    my $port = shift
+      || __PACKAGE__->err( 'Usage', 'usage: try_lock_socket($PORT)' );
+    my $addr = shift;
+    my $sock = Lock::Socket->new(
+        port => $port,
+        defined $addr ? ( addr => $addr ) : (),
+    );
+    $sock->try_lock;
+    return $sock if $sock->_is_locked;
+    return undef;
+}
+
 sub import {
     my $class  = shift;
     my $caller = caller;
@@ -46,32 +71,10 @@ sub import {
 
     foreach my $token (@_) {
         if ( $token eq 'lock_socket' ) {
-            *{ $caller . '::lock_socket' } = sub {
-                my $port = shift
-                  || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
-                my $addr = shift;
-                my $sock = Lock::Socket->new(
-                    port => $port,
-                    defined $addr ? ( addr => $addr ) : (),
-                );
-                $sock->lock;
-                return $sock;
-            };
+            *{ $caller . '::lock_socket' } = \&lock_socket;
         }
         elsif ( $token eq 'try_lock_socket' ) {
-            *{ $caller . '::try_lock_socket' } = sub {
-                my $port = shift
-                  || __PACKAGE__->err( 'Usage',
-                    'usage: try_lock_socket($PORT)' );
-                my $addr = shift;
-                my $sock = Lock::Socket->new(
-                    port => $port,
-                    defined $addr ? ( addr => $addr ) : (),
-                );
-                $sock->try_lock;
-                return $sock if $sock->_is_locked;
-                return undef;
-              }
+            *{ $caller . '::try_lock_socket' } = \&try_lock_socket;
         }
         else {
             __PACKAGE__->err( 'Import',
