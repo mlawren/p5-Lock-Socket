@@ -1,16 +1,29 @@
 use strict;
 use warnings;
-use Lock::Socket qw/lock_socket try_lock_socket/;
+use Lock::Socket qw/lock_socket try_lock_socket lock_user_socket
+  try_lock_user_socket/;
 use Test::More;
 use Test::Fatal;
 
-my $e = exception {
+my $e;
+
+$e = exception {
     lock_socket();
 };
 isa_ok $e, 'Lock::Socket::Error::Usage';
 
 $e = exception {
     try_lock_socket();
+};
+isa_ok $e, 'Lock::Socket::Error::Usage';
+
+$e = exception {
+    lock_user_socket();
+};
+isa_ok $e, 'Lock::Socket::Error::Usage';
+
+$e = exception {
+    try_lock_user_socket();
 };
 isa_ok $e, 'Lock::Socket::Error::Usage';
 
@@ -68,5 +81,20 @@ if ($sock3) {
 undef $sock;
 my $sock4 = lock_socket($PORT1);
 is $sock4->lock, 1, 'lock 4';
+
+if ($<) {
+    my $PORT3 = 25414 + int( rand(1000) );
+    my $l     = lock_socket($PORT3);
+    my $u     = lock_user_socket($PORT3);
+    is $l->port, $PORT3, 'port()';
+    is $u->port, $PORT3 + $<, 'user_sock port is + $UID';
+
+    $e = exception {
+        lock_user_socket($PORT3);
+    };
+    isa_ok $e, 'Lock::Socket::Error::Bind';
+    is try_lock_user_socket($PORT3), undef, 'try_lock_user_socket undef';
+
+}
 
 done_testing();

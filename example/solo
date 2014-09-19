@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use lib 'lib';
 use lib '../lib';
-use Lock::Socket qw/lock_socket/;
+use Lock::Socket qw/lock_user_socket/;
 
 die "usage: $0 PORT COMMAND...\n"
   unless $#ARGV >= 1;
@@ -12,9 +12,9 @@ die "usage: $0 PORT COMMAND...\n"
 $^F = 3;
 
 my $port = shift @ARGV;
-$port += $> if $^O =~ m/bsd$/;
+$port += $> if $^O =~ m/bsd$/ or $^O eq 'darwin';
 
-my $lock = lock_socket($port);
+my $lock = lock_user_socket($port);
 printf "Have lock on %s:%d\n", $lock->addr, $lock->port;
 
 exec @ARGV
