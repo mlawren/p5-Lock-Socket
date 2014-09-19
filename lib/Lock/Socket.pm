@@ -29,7 +29,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.7_1';
+our $VERSION = '0.0.7_1';
 our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
