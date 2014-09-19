@@ -1,10 +1,13 @@
 0.0.5_1 (yyyy-mm-dd)
 
     API Changes:
-        - None.
+        - Object API no longer attempts automatic per-user lock.
+          Attributes are taken exactly as they are specified.
 
     New Features:
-        - New functions: uid_ip() and uid_port()
+        - New functions: lock_user_socket() and try_lock_user_socket()
+          that take over the per-user role previously in the object
+          class itself.
 
     Enhancements:
         - Make exported functions non-anonymous
