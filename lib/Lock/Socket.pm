@@ -39,13 +39,7 @@ our @CARP_NOT;
 
 ### Function Interface ###
 
-sub uid_port {
-    my $port = shift
-      || __PACKAGE__->err( 'Usage', 'usage: uid_port($PORT)' );
-    return $port + $<;
-}
-
-sub uid_ip {
+sub _uid_ip {
     return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
       unless $^O =~ m/bsd$/ or $^O eq 'darwin';
     return '127.0.0.1';
@@ -55,6 +49,7 @@ sub lock_socket {
     my $port = shift
       || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
     my $addr = shift;
+
     my $sock = Lock::Socket->new(
         port => $port,
         defined $addr ? ( addr => $addr ) : (),
@@ -63,17 +58,27 @@ sub lock_socket {
     return $sock;
 }
 
-sub try_lock_socket {
+sub lock_user_socket {
     my $port = shift
-      || __PACKAGE__->err( 'Usage', 'usage: try_lock_socket($PORT)' );
+      || __PACKAGE__->err( 'Usage', 'usage: lock_user_socket($PORT)' );
     my $addr = shift;
+
     my $sock = Lock::Socket->new(
-        port => $port,
-        defined $addr ? ( addr => $addr ) : (),
+        port => $port + $<,
+        addr => $addr || _uid_ip,
     );
-    $sock->try_lock;
-    return $sock if $sock->_is_locked;
-    return undef;
+    $sock->lock;
+    return $sock;
+}
+
+sub try_lock_socket {
+    $_[0] || __PACKAGE__->err( 'Usage', 'usage: try_lock_socket($PORT)' );
+    return eval { lock_socket(@_) };
+}
+
+sub try_lock_user_socket {
+    $_[0] || __PACKAGE__->err( 'Usage', 'usage: try_lock_user_socket($PORT)' );
+    return eval { lock_user_socket(@_) };
 }
 
 sub import {
@@ -88,11 +93,11 @@ sub import {
         elsif ( $token eq 'try_lock_socket' ) {
             *{ $caller . '::try_lock_socket' } = \&try_lock_socket;
         }
-        elsif ( $token eq 'uid_ip' ) {
-            *{ $caller . '::uid_ip' } = \&uid_ip;
+        elsif ( $token eq 'lock_user_socket' ) {
+            *{ $caller . '::lock_user_socket' } = \&lock_user_socket;
         }
-        elsif ( $token eq 'uid_port' ) {
-            *{ $caller . '::uid_port' } = \&uid_port;
+        elsif ( $token eq 'try_lock_user_socket' ) {
+            *{ $caller . '::try_lock_user_socket' } = \&try_lock_user_socket;
         }
         else {
             __PACKAGE__->err( 'Import',
@@ -110,7 +115,7 @@ has port => (
 
 has addr => (
     is      => 'ro',
-    default => \&uid_ip,
+    default => '127.0.0.1',
 
 );
 
@@ -300,6 +305,10 @@ Attempts to lock $PORT (on 127.0.0.1 by default) and returns a
 B<Lock::Socket> object. Raises an exception if the lock cannot be
 taken.
 
+=item try_lock_socket($PORT, [$ADDR]) -> Lock::Socket | undef
+
+Same as C<lock_socket()> but returns undef on failure.
+
 =item lock_user_socket($PORT, [$ADDR]) -> Lock::Socket
 
 Similarly to C<lock_socket()> this function attempts to take a lock and
@@ -307,7 +316,7 @@ returns a B<Lock::Socket> object or raises an exception if the lock
 cannot be taken. The difference here is that this function attempts to
 take a lock that is per-user, instead of system wide.
 
-over
+=over
 
 =item * The actual lock port is calculated as $PORT + $UID.
 
@@ -325,10 +334,6 @@ over
 Unfortunately on BSD systems the loopback interface appears to be
 configured with a /32 netmask so there the above calculation is I<not>
 performed and the address defaults to 127.0.0.1.
-
-=item try_lock_socket($PORT, [$ADDR]) -> Lock::Socket | undef
-
-Same as C<lock_socket()> but returns undef on failure.
 
 =item try_lock_user_socket($PORT, [$ADDR]) -> Lock::Socket | undef
 
