@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Lock::Socket qw/lock_socket try_lock_socket/;
+use Lock::Socket qw/lock_socket try_lock_socket uid_ip uid_port/;
 use Test::More;
 use Test::Fatal;
 
@@ -18,6 +18,9 @@ $e = exception {
     Lock::Socket->import('unknown');
 };
 isa_ok $e, 'Lock::Socket::Error::Import';
+
+like uid_ip, qr/^127\.(\d+)\.(\d+)\.1$/, 'uid_ip gives ' . uid_ip;
+is uid_port(1), 1 + $<, 'uid_port adds UID';
 
 my $PORT1 = 14414 + int( rand(1000) );
 my $PORT2 = 24414 + int( rand(1000) );

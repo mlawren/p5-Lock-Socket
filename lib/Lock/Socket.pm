@@ -39,6 +39,18 @@ our @CARP_NOT;
 
 ### Function Interface ###
 
+sub uid_port {
+    my $port = shift
+      || __PACKAGE__->err( 'Usage', 'usage: uid_port($PORT)' );
+    return $port + $<;
+}
+
+sub uid_ip {
+    return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
+      unless $^O =~ m/bsd$/ or $^O eq 'darwin';
+    return '127.0.0.1';
+}
+
 sub lock_socket {
     my $port = shift
       || __PACKAGE__->err( 'Usage', 'usage: lock_socket($PORT)' );
@@ -76,6 +88,12 @@ sub import {
         elsif ( $token eq 'try_lock_socket' ) {
             *{ $caller . '::try_lock_socket' } = \&try_lock_socket;
         }
+        elsif ( $token eq 'uid_ip' ) {
+            *{ $caller . '::uid_ip' } = \&uid_ip;
+        }
+        elsif ( $token eq 'uid_port' ) {
+            *{ $caller . '::uid_port' } = \&uid_port;
+        }
         else {
             __PACKAGE__->err( 'Import',
                 'not exported by Lock::Socket: ' . $token );
@@ -92,11 +110,7 @@ has port => (
 
 has addr => (
     is      => 'ro',
-    default => sub {
-        return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
-          unless $^O =~ m/bsd$/ or $^O eq 'darwin';
-        return '127.0.0.1';
-    },
+    default => \&uid_ip,
 );
 
 has _inet_addr => (

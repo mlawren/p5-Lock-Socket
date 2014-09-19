@@ -4,7 +4,7 @@
         - None.
 
     New Features:
-        - None.
+        - New functions: uid_ip() and uid_port()
 
     Enhancements:
         - Make exported functions non-anonymous
