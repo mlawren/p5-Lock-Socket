@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 name 'Lock-Socket';
 author 'Mark Lawrence <nomad@null.net>';
-version '0.0.6';
+version '0.0.7_1';
 license 'gpl3';
 
 homepage 'https://github.com/mlawren/p5-Lock-Socket';

@@ -29,7 +29,7 @@ use Carp ();
 use Lock::Socket::Mo;
 use Socket;
 
-our @VERSION = '0.0.6';
+our @VERSION = '0.0.7_1';
 our @CARP_NOT;
 
 @Lock::Socket::Error::Bind::ISA   = ('Lock::Socket::Error');
@@ -199,7 +199,7 @@ Lock::Socket - application lock/mutex module based on sockets
 
 =head1 VERSION
 
-0.0.6 (2014-09-15)
+0.0.7_1 (2014-09-15)
 
 =head1 SYNOPSIS
 
