@@ -1,4 +1,4 @@
-0.0.6 (yyyy-mm-dd)
+0.0.6 (2014-09-19)
 
     API Changes:
         - Object API no longer attempts automatic per-user lock.
