@@ -12,7 +12,7 @@ die "usage: $0 PORT COMMAND...\n"
 $^F = 3;
 
 my $port = shift @ARGV;
-$port += $> if $^O =~ m/bsd$/;
+$port += $> if $^O =~ m/bsd$/ or $^O eq 'darwin';
 
 my $lock = lock_socket($port);
 printf "Have lock on %s:%d\n", $lock->addr, $lock->port;

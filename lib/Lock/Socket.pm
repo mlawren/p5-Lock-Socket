@@ -91,7 +91,7 @@ has addr => (
     is      => 'ro',
     default => sub {
         return join( '.', 127, unpack( 'C2', pack( "n", $< ) ), 1 )
-          unless $^O =~ m/bsd$/;
+          unless $^O =~ m/bsd$/ or $^O eq 'darwin';
         return '127.0.0.1';
     },
 );

@@ -10,7 +10,7 @@
         - None.
 
     Bug Fixes:
-        - None.
+        - Darwin (MacOS?) also only configures 127.0.0.1/32
 
 0.0.4 (2014-09-15)
 
